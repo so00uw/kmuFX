@@ -1,0 +1,39 @@
+/* 기본 */
+*{ box-sizing:border-box }
+html,body{ margin:0; height:100%; background:#000; color:#fff; font-family:system-ui, -apple-system, Segoe UI, Roboto; overflow:hidden }
+
+/* ── 스테이지: 1920x1080 고정. JS가 화면에 맞게 중앙 스케일 */
+#stage{
+  position:absolute; left:50%; top:50%;
+  width:1920px; height:1080px;
+  transform-origin:center center;
+}
+
+/* 레이어 */
+#layer-bg, #layer-windows{ position:absolute; inset:0 }
+#layer-bg{
+  /* 전시 기본 배경 (원하는 이미지로 교체) */
+  background: #123 url("img/bg_root.png") center/cover no-repeat;
+  z-index:0; pointer-events:none;
+}
+#layer-windows{ z-index:10 }
+
+/* 공통 창 프레임 */
+.window{
+  position:absolute;
+  border:1px solid #ffffff40;
+  background:#0e0e0e;
+  box-shadow:0 10px 30px rgba(0,0,0,.45);
+  user-select:none;
+}
+.win-title{
+  height:34px; padding:0 10px;
+  display:flex; align-items:center; justify-content:space-between;
+  background:#1a1a1a; border-bottom:1px solid #ffffff26; cursor:move;
+}
+.win-title span{ font-size:14px; color:#ddd }
+.win-close{ border:1px solid #ffffff33; background:#ffffff12; color:#fff; padding:2px 8px; cursor:pointer }
+.win-body{ padding:12px }
+
+/* 예시 버튼 */
+.btn{ padding:.5rem .9rem; border:1px solid #fff; background:#ffffff12; color:#fff; cursor:pointer }

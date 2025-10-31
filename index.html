@@ -1,1 +1,21 @@
-<!doctype html><title>formx</title>
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Exhibition</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- 고정 해상도 스테이지(1920x1080). 스케일은 JS가 처리 -->
+  <div id="stage">
+    <!-- 항상 맨뒤 배경 -->
+    <div id="layer-bg" aria-hidden="true"></div>
+
+    <!-- 창들이 올라가는 레이어 (여기에 components/window_*.html 이 주입됨) -->
+    <div id="layer-windows"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
