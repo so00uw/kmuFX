@@ -253,6 +253,17 @@
       win.style.transform = `translate(${moveX}vw, ${moveY}vh)`;
     }, 3000 + Math.random() * 1500);
   });
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      try {
+        window.parent.showWindow2();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  });
+
   </script>
 </body>
 </html>
