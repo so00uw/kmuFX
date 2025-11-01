@@ -88,7 +88,7 @@
 <body>
   <div class="background">
     <!-- 배경 이미지 -->
-    <img src="https://media.discordapp.net/attachments/1432035790564753570/1433701996057071616/image.png?ex=6905a688&is=69045508&hm=17a84f6d46a02ce2dc0fbc3aa85b928eb424cd4b7ee6b8b6b6cd2e6f7751d016&=&format=webp&quality=lossless&width=1191&height=676" 
+    <img src="../img/image20.png" 
          alt="background" class="bg-img">
 
     <!-- 떠다니는 창 19개 -->
@@ -125,27 +125,30 @@
   });
 
   // 🔗 이미지 링크 19개
-  const images = [
-    "https://media.discordapp.net/attachments/1432035790564753570/1432036950449324152/image.png?ex=69062f56&is=6904ddd6&hm=4071ba4ec2977933aaf380a4e30097d30152f20c6e84d9ccfa6fc1bfed197d0d&=&format=webp&quality=lossless&width=405&height=393",
-    "https://media.discordapp.net/attachments/1432035790564753570/1432037293031555132/image.png?ex=69062fa8&is=6904de28&hm=21f46bc5bc59b584d9975be65c3357947320725b0355410782591b39c988be52&=&format=webp&quality=lossless&width=773&height=780",
-    "https://media.discordapp.net/attachments/1432035790564753570/1432042672905785374/image.png?ex=69058beb&is=69043a6b&hm=d0a01d03e386ec4a2be9a7b4938149dab28c7e547c8fc35be16b26b1e00f5a7b&=&format=webp&quality=lossless",
-    "https://media.discordapp.net/attachments/1432035790564753570/1433880792135761940/image.png?ex=69064d0d&is=6904fb8d&hm=90c22351c7f7be00bf3d9bac3ac3783b85fc557b742fc968330e84bcee8ab5c8&=&format=webp&quality=lossless&width=868&height=780",
-    "https://media.discordapp.net/attachments/1432035790564753570/1433880269668089907/image.png?ex=69064c90&is=6904fb10&hm=d92ced9b9e91186952ea468a55ab78f0c6e758b50e62959811c4e6a3dabf2f97&=&format=webp&quality=lossless",
-    "https://media.discordapp.net/attachments/1432035790564753570/1432039482135154899/image.png?ex=690588f2&is=69043772&hm=3947e079ff353388f047eb8b8ad0b2a10f867a6b8bb1cd849a71d0d76427c6ea&=&format=webp&quality=lossless&width=278&height=779",
-    "https://media.discordapp.net/attachments/1432035790564753570/1432043072577077280/image.png?ex=69058c4a&is=69043aca&hm=eb555de4d30d9f392299451f188527cc22db08fda84340fb6a9e954436b2401c&=&format=webp&quality=lossless&width=578&height=393",
-    "https://media.discordapp.net/attachments/1432035790564753570/1432043032248582164/image.png?ex=69058c40&is=69043ac0&hm=0d729aba30c2be68911b92ec3f0f1f777427192dfa5fbcedccabfbc426cccd96&=&format=webp&quality=lossless",
-    "https://media.discordapp.net/attachments/1432035790564753570/1432042754464022728/image.png?ex=69058bfe&is=69043a7e&hm=67c1f7f8e4710dfbb8c3ea9e7c0d09b887c6f49f9542efebcfc64f253d35fa93&=&format=webp&quality=lossless",
-    "https://media.discordapp.net/attachments/1432035790564753570/1432043130693357701/image.png?ex=69058c58&is=69043ad8&hm=cf708e72f81100c1303631d7ef9c64faf51fcdc83ac95506dd5a89dd1907194a&=&format=webp&quality=lossless",       
-    "https://media.discordapp.net/attachments/1432035790564753570/1432041703921160242/image.png?ex=69058b04&is=69043984&hm=0b70f874a40c7f5b31984b68941ea63cfc9c55fe30fd36b886869762011297da&=&format=webp&quality=lossless",
-    "https://media.discordapp.net/attachments/1432035790564753570/1432042881534791862/image.png?ex=69058c1d&is=69043a9d&hm=4ec850d14bc2412baccdf81ec28bb9418cf87cbcb27b07df85e29a6ab8450d81&=&format=webp&quality=lossless",
-    "https://media.discordapp.net/attachments/1432035790564753570/1433857201067524328/image.png?ex=69063714&is=6904e594&hm=5c6334b7fecd9305998be5dce5d0923b7854039e79f5e30b4e48baafcccee0e2&=&format=webp&quality=lossless&width=296&height=497",
-    "https://media.discordapp.net/attachments/1432035790564753570/1432042905580863659/image.png?ex=69058c22&is=69043aa2&hm=63b25101b0d7ba7f3523fef28d5a0356aa270d2dbdd2cfbe45c95f7a9f83f179&=&format=webp&quality=lossless&width=412&height=393",
-    "https://media.discordapp.net/attachments/1432035790564753570/1432042565934252123/image.png?ex=69058bd1&is=69043a51&hm=abd6b0fcd8c217efe659c5568439387559ecf5c1001083dc7578d2a63778b07f&=&format=webp&quality=lossless&width=493&height=393",
-    "https://cdn.discordapp.com/attachments/1432035790564753570/1432042488977293342/image.png?ex=69058bbf&is=69043a3f&hm=a48964a30170979e65e66f030807071dc21e09caa14ba90acbc28227c4aaa0ae",
-    "https://media.discordapp.net/attachments/1432035790564753570/1432041803795660941/image.png?ex=69058b1c&is=6904399c&hm=fa8dca26d7eafa4e0e3dbd564c1567e145c62a4c2680895153c2702b8949d058&=&format=webp&quality=lossless",
-    "https://media.discordapp.net/attachments/1433888756733182085/1433895654505316352/image.png?ex=69065ae4&is=69050964&hm=969693b30f0428f8246d6e4a0f217d238a898df817441f3e2289103aa153c1ca&=&format=webp&quality=lossless",
-    "https://cdn.discordapp.com/attachments/1432035790564753570/1433878516780372089/image.png?ex=69064aee&is=6904f96e&hm=8f51ca9ef728bb5b282d4a2a6a41d3eafc871efd20712bf1d3b44ab53177bb47"
-  ];
+const images = [
+  "../img/image.png",
+  "../img/image2.png",
+  "../img/image3.png",
+  "../img/image4.png",
+  "../img/image5.png",
+  "../img/image6.png",
+  "../img/image7.png",
+  "../img/image8.png",
+  "../img/image9.png",
+  "../img/image10.png",
+  "../img/image11.png",
+  "../img/image12.png",
+  "../img/image13.png",
+  "../img/image14.png",
+  "../img/image15.png",
+  "../img/image16.png",
+  "../img/image17.png",
+  "../img/image18.png",
+  "../img/image19.png"
+];
+
+
+
 
   // 위치 (배경 기준)
   const basePositions = [
