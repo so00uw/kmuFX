@@ -13,7 +13,7 @@ html,body{ margin:0; height:100%; background:#000; color:#fff; font-family:syste
 #layer-bg, #layer-windows{ position:absolute; inset:0 }
 #layer-bg{
   /* 전시 기본 배경 (원하는 이미지로 교체) */
-  background: #123 url("img/bg_root.png") center/cover no-repeat;
+  background: #123 url("img/bg_root.png") center/contain no-repeat;
   z-index:0; pointer-events:none;
 }
 #layer-windows{ z-index:10 }
