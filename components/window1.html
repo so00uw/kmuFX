@@ -83,6 +83,61 @@
       transform: translateY(4px);
       box-shadow: 0 2px 0 #a01010;
     }
+
+    /* ✨ 팝업 추가 */
+    .popup {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .popup.show {
+      display: flex;
+      opacity: 1;
+    }
+
+    .popup-content {
+      position: relative;
+      width: 600px;  /* 팝업 이미지 크기에 맞게 조절 */
+      height: 400px;
+    }
+
+    /* 팝업 배경 이미지 */
+    .popup-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      z-index: 1;
+    }
+
+    /* 이름 입력창 */
+    .popup-input {
+      position: absolute;
+      top: 55%; /* 이미지 안 입력칸 위치 맞춰서 수정 가능 */
+      left: 51%;
+      transform: translate(-50%, -50%);
+      width: 230px;
+      height: 38px;
+      border: 2px solid #000;
+      border-radius: 5px;
+      font-size: 18px;
+      text-align: center;
+      background: #ffffff;
+      outline: none;
+      z-index: 2;
+    }
   </style>
 </head>
 <body>
@@ -118,37 +173,44 @@
     </div>
   </div>
 
+  <!-- 🎨 팝업창 (이미지 + 입력창만) -->
+  <div id="namePopup" class="popup">
+    <div class="popup-content">
+      <img src="../img/image21.png" alt="popup background" class="popup-bg">
+      <input type="text" id="userName" class="popup-input" placeholder="">
+    </div>
+  </div>
+
   <script>
-  // 버튼 클릭 시 페이지 이동
-  document.getElementById('startButton').addEventListener('click', () => {
-    window.location.href = "../main.html";
+  // 🎬 버튼 클릭 시 팝업 열기
+  const startBtn = document.getElementById('startButton');
+  const popup = document.getElementById('namePopup');
+  const nameInput = document.getElementById('userName');
+
+  startBtn.addEventListener('click', () => {
+    popup.classList.add('show');
+  });
+
+  // 🎬 Enter 누르면 다음 페이지로 이동
+  nameInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      const name = nameInput.value.trim();
+      if (name === "") {
+        alert("이름을 입력해주세요!");
+      } else {
+        window.location.href = "../main.html";
+      }
+    }
   });
 
   // 🔗 이미지 링크 19개
-const images = [
-  "../img/image.png",
-  "../img/image2.png",
-  "../img/image3.png",
-  "../img/image4.png",
-  "../img/image5.png",
-  "../img/image6.png",
-  "../img/image7.png",
-  "../img/image8.png",
-  "../img/image9.png",
-  "../img/image10.png",
-  "../img/image11.png",
-  "../img/image12.png",
-  "../img/image13.png",
-  "../img/image14.png",
-  "../img/image15.png",
-  "../img/image16.png",
-  "../img/image17.png",
-  "../img/image18.png",
-  "../img/image19.png"
-];
-
-
-
+  const images = [
+    "../img/image.png","../img/image2.png","../img/image3.png","../img/image4.png",
+    "../img/image5.png","../img/image6.png","../img/image7.png","../img/image8.png",
+    "../img/image9.png","../img/image10.png","../img/image11.png","../img/image12.png",
+    "../img/image13.png","../img/image14.png","../img/image15.png","../img/image16.png",
+    "../img/image17.png","../img/image18.png","../img/image19.png"
+  ];
 
   // 위치 (배경 기준)
   const basePositions = [
