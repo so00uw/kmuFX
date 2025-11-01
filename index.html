@@ -13,7 +13,11 @@
     <div id="layer-bg" aria-hidden="true"></div>
 
     <!-- 창들이 올라가는 레이어 (여기에 components/window_*.html 이 주입됨) -->
-    <div id="layer-windows"></div>
+    <div id="layer-windows">
+      <iframe src="components/window1.html" 
+          style="width:100%; height:100%; border:none; position:absolute; left:0; top:0;">
+      </iframe>
+    </div>
   </div>
 
   <script src="script.js"></script>
