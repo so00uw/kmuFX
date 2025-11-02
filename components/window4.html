@@ -194,8 +194,114 @@
         setTimeout(() => {
           speech.src = endSpeech;
           speech.className = "speech end"; // ❗ 단순 교체만
+          setTimeout(startRobotCheck, 2000);
         }, 2000);
       }
+    }
+    
+    function startCaptcha() {
+      // 1) 기존 라운드 요소 전부 숨김
+      const toHide = document.querySelectorAll('.dot, .speech, .character, .X, .hearts');
+      toHide.forEach(el => el && (el.style.display = 'none'));
+      const canvas = document.getElementById('lineCanvas');
+       if (canvas) canvas.style.display = 'none';
+
+      // 이미 만들어져 있으면 중복 생성 방지
+      if (document.getElementById('captcha-stage')) return;
+
+      // 2) 캡차 스테이지 컨테이너 생성
+      const captcha = document.createElement('div');
+      captcha.id = 'captcha-stage';
+      // 위치/크기: 기존 stage(1280x720) 안을 꽉 채움
+      captcha.style.position = 'absolute';
+      captcha.style.inset = '0';
+      captcha.style.width = '1280px';
+      captcha.style.height = '720px';
+      captcha.style.margin = '0 auto';
+      captcha.style.pointerEvents = 'auto';
+      captcha.style.zIndex = '20';
+
+      // 3) 배경(버튼 포함된 이미지) 삽입
+      //    ※ 여기서 bg 파일명은 네가 실제 사용하는 캡차용 배경으로 바꿔도 됨
+      captcha.innerHTML = `
+        <img src="../img/window4/bg.png"
+            alt="captcha background"
+            style="position:absolute; inset:0; width:100%; height:100%; object-fit:contain; pointer-events:none;">
+      `;
+
+      // 4) stage에 추가
+      const stage = document.getElementById('stage');
+      stage.appendChild(captcha);
+      // (다음 단계에서) selectable 이미지, 클릭영역, verify/refresh/i 핫스팟, 팝업 등을 붙일 예정
+      // 5) 버튼 핫스팟 레이어 (verify / refresh / info)
+      const ui = document.createElement('div');
+      ui.id = 'captcha-ui';
+      ui.style.position = 'absolute';
+      ui.style.inset = '0';
+      ui.style.zIndex = '2100';
+      captcha.appendChild(ui);
+
+      // 공통 스타일
+      function makeHotspot(cls, left, top, w, h) {
+        const el = document.createElement('div');
+        el.className = 'hotspot ' + cls;
+        el.style.position = 'absolute';
+        el.style.left = left + 'px';
+        el.style.top  = top + 'px';
+        el.style.width  = w + 'px';
+        el.style.height = h + 'px';
+        el.style.cursor = 'pointer';
+        el.style.background = 'rgba(255,255,255,0)'; // 클릭 영역만 (보이게 하려면 0.1~0.2로 잠깐 조정해도 됨)
+        return el;
+      }
+
+      /* ⬇️ 임시 좌표(1280x720 기준). 배경의 아이콘 위치에 맞춰 숫자만 조정해줘.
+        - verify:  오른쪽 하단 버튼
+        - refresh: 왼쪽 하단 새로고침
+        - info:    우상단 'i' 아이콘 근처
+      */
+      const hsVerify  = makeHotspot('verify', 1050, 630, 180, 60);
+      const hsRefresh = makeHotspot('refresh', 120,  630, 140, 60);
+      const hsInfo    = makeHotspot('info',   1120,  80,  40,  40);
+
+      ui.appendChild(hsVerify);
+      ui.appendChild(hsRefresh);
+      ui.appendChild(hsInfo);
+
+      // 동작: info = hover 표시(툴팁), refresh = 선택 초기화, verify = 정답 검사(다음 단계에서 연결)
+      let infoTip = null;
+      hsInfo.addEventListener('mouseenter', () => {
+        if (infoTip) return;
+        infoTip = document.createElement('div');
+        infoTip.textContent = '정답은 2개입니다';
+        infoTip.style.position = 'absolute';
+        infoTip.style.left = (hsInfo.offsetLeft - 10) + 'px';
+        infoTip.style.top  = (hsInfo.offsetTop + hsInfo.offsetHeight + 8) + 'px';
+        infoTip.style.padding = '8px 10px';
+        infoTip.style.borderRadius = '8px';
+        infoTip.style.background = 'rgba(0,0,0,0.8)';
+        infoTip.style.color = '#fff';
+        infoTip.style.font = '14px/1.2 system-ui, -apple-system, Segoe UI, Roboto';
+        infoTip.style.zIndex = '2200';
+        ui.appendChild(infoTip);
+      });
+      hsInfo.addEventListener('mouseleave', () => {
+        if (infoTip) { infoTip.remove(); infoTip = null; }
+      });
+
+      // refresh = 선택 초기화 (선택 로직은 다음 단계에서 붙일 예정이므로, 지금은 이벤트 연결만)
+      hsRefresh.addEventListener('click', () => {
+        // 다음 단계에서 selectable 요소 선택 배열을 초기화하는 함수를 연결할 거야.
+        // 예: resetSelections();
+        console.log('[captcha] refresh clicked');
+      });
+
+      // verify = 정답 검사 트리거 (다음 단계에서 실제 검사 함수 연결)
+      hsVerify.addEventListener('click', () => {
+        // 다음 단계에서 checkAnswers()와 팝업 표시를 연결할 거야.
+        console.log('[captcha] verify clicked');
+      });
+
     }
 
     // ✅ 맞았을 때
@@ -266,6 +372,102 @@
     });
 
     window.addEventListener("resize", redrawLines);
+    function startRobotCheck() {
+      // 이미 떠있으면 중복 생성 방지
+      if (document.getElementById('robot-check')) return;
+
+      const stage = document.getElementById('stage');
+
+      // 반투명 오버레이
+      const overlay = document.createElement('div');
+      overlay.id = 'robot-check';
+      overlay.style.position = 'absolute';
+      overlay.style.inset = '0';
+      overlay.style.background = 'rgba(0,0,0,0.45)';
+      overlay.style.zIndex = '25';
+      overlay.style.zIndex = '2000';
+      overlay.style.display = 'flex';
+      overlay.style.alignItems = 'center';
+      overlay.style.justifyContent = 'center';
+
+      // 로봇이 아닙니다 카드
+      const card = document.createElement('div');
+      card.style.width = '520px';
+      card.style.background = '#fff';
+      card.style.borderRadius = '10px';
+      card.style.boxShadow = '0 20px 60px rgba(0,0,0,.35)';
+      card.style.padding = '22px 24px';
+      card.style.fontFamily = 'system-ui, -apple-system, Segoe UI, Roboto';
+      card.style.color = '#222';
+
+      // 상단 영역 (체크박스 + 라벨)
+      const top = document.createElement('div');
+      top.style.display = 'flex';
+      top.style.alignItems = 'center';
+      top.style.gap = '14px';
+      top.style.marginBottom = '14px';
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.id = 'rbx';
+      checkbox.style.width = '24px';
+      checkbox.style.height = '24px';
+      checkbox.style.cursor = 'pointer';
+
+      const label = document.createElement('label');
+      label.htmlFor = 'rbx';
+      label.textContent = "I'm not a robot";
+      label.style.fontSize = '20px';
+      label.style.cursor = 'pointer';
+
+      top.appendChild(checkbox);
+      top.appendChild(label);
+
+      // 하단 영역 (확인 버튼 + 안내)
+      const bottom = document.createElement('div');
+      bottom.style.display = 'flex';
+      bottom.style.alignItems = 'center';
+      bottom.style.justifyContent = 'space-between';
+      bottom.style.marginTop = '10px';
+
+      const hint = document.createElement('div');
+      hint.textContent = '이 확인 후 이미지 검증 단계로 진행됩니다.';
+      hint.style.fontSize = '13px';
+      hint.style.color = '#666';
+
+      const btn = document.createElement('button');
+      btn.textContent = '확인';
+      btn.style.padding = '10px 16px';
+      btn.style.border = '1px solid #e0e0e0';
+      btn.style.borderRadius = '8px';
+      btn.style.background = '#1976d2';
+      btn.style.color = '#fff';
+      btn.style.fontSize = '14px';
+      btn.style.cursor = 'pointer';
+
+      // 버튼 동작
+      btn.addEventListener('click', () => {
+        if (!checkbox.checked) {
+          // 체크 안 했을 때 살짝 강조
+          checkbox.style.outline = '2px solid #f44336';
+          setTimeout(() => (checkbox.style.outline = 'none'), 500);
+          return;
+        }
+        // 통과 → 오버레이 제거 → 캡차 시작
+        overlay.remove();
+        startCaptcha();
+      });
+
+      bottom.appendChild(hint);
+      bottom.appendChild(btn);
+
+      // 구성 조립
+      card.appendChild(top);
+      card.appendChild(bottom);
+      overlay.appendChild(card);
+      stage.appendChild(overlay);
+    }
+
   </script>
 </body>
 </html>
