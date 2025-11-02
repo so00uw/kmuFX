@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Window 4 - 2라운드 배경 고정</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+  }
+
+  /* 무조건 중앙 고정 */
+  #stage {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 1280px;
+    height: 720px;
+    background: url("../img/window4/자산%2012.png") no-repeat center center;
+    background-size: contain;
+  }
+
+  .character { position: absolute; bottom: 43px; left: 170px; width: 300px; z-index: 5; }
+  .X { position: absolute; bottom: 140px; left: 550px; width: 440px; z-index: 2; }
+
+  /* 💬 말풍선 위치 */
+  .speech {
+    position: absolute;
+    bottom: 455px;
+    left: 220px;
+    width: 160px;
+    z-index: 6;
+  }
+
+  /* 💬 틀렸을 때 말풍선 */
+  .speech.wrong {
+    bottom: 455px;
+    left: 265px;
+    width: 50px;
+  }
+
+  /* 💬 마지막 대사 말풍선 */
+  .speech.end {
+    bottom: 455px;
+    left: 235px;
+    width: 120px;
+  }
+
+  .hearts {
+    position: absolute;
+    top: 50px;
+    left: 140px;
+    display: flex;
+    gap: 12px;
+    z-index: 7;
+  }
+  .hearts img { width: 60px; }
+
+  /* 점 고정 */
+  .dot {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.5);
+    border: 2px solid #111;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    z-index: 999;
+  }
+
+  /* 윗줄 */
+  .dot1 { top: 370px; left: 600px; }
+  .dot2 { top: 370px; left: 780px; }
+  .dot3 { top: 370px; left: 950px; }
+
+  /* 아랫줄 */
+  .dot4 { top: 450px; left: 600px; }
+  .dot5 { top: 450px; left: 780px; }
+  .dot6 { top: 440px; left: 950px; }
+
+  #lineCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1280px;
+    height: 720px;
+    z-index: 10;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+  <div id="stage">
+    <canvas id="lineCanvas" width="1280" height="720"></canvas>
+
+    <div class="hearts">
+      <img src="../img/window4/자산%2015.png" id="h1">
+      <img src="../img/window4/자산%2015.png" id="h2">
+      <img src="../img/window4/자산%2015.png" id="h3">
+    </div>
+
+    <img src="../img/window4/자산%2013.png" class="character" id="character">
+    <img src="../img/window4/자산%209.png" class="X" id="X">
+    <img src="../img/window4/자산%2017.png" class="speech" id="speech">
+
+    <div class="dot dot1"></div>
+    <div class="dot dot2"></div>
+    <div class="dot dot3"></div>
+    <div class="dot dot4"></div>
+    <div class="dot dot5"></div>
+    <div class="dot dot6"></div>
+  </div>
+
+  <script>
+    const stage = document.getElementById("stage");
+    const canvas = document.getElementById("lineCanvas");
+    const ctx = canvas.getContext("2d");
+    const hearts = document.querySelectorAll(".hearts img");
+    const dots = document.querySelectorAll(".dot");
+    const character = document.getElementById("character");
+    const speech = document.getElementById("speech");
+    const X = document.getElementById("X");
+
+    let selected = null;
+    let mistakes = 0;
+    let round = 1;
+    let activeLines = [];
+    let matchedPairs = [];
+
+    const correctPairs1 = { dot1: "dot5", dot2: "dot6", dot3: "dot4" };
+
+    const normalChar = "../img/window4/자산%2013.png";
+    const normalSpeech = "../img/window4/자산%2017.png";
+    const wrongChar = "../img/window4/자산%2011.png";
+    const wrongSpeech = "../img/window4/자산%2019.png";
+    const endSpeech = "../img/window4/자산%2021.png";
+
+    // 점 중심 좌표
+    function getDotCenter(dot) {
+      const rect = dot.getBoundingClientRect();
+      const stageRect = stage.getBoundingClientRect();
+      return {
+        x: rect.left + rect.width / 2 - stageRect.left,
+        y: rect.top + rect.height / 2 - stageRect.top
+      };
+    }
+
+    // 선 그리기
+    function drawLine(dotA, dotB, color = "white") {
+      const a = getDotCenter(dotA);
+      const b = getDotCenter(dotB);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+      ctx.stroke();
+      return { a, b, color };
+    }
+
+    function redrawLines() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      activeLines.forEach(l => {
+        ctx.strokeStyle = l.color;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(l.a.x, l.a.y);
+        ctx.lineTo(l.b.x, l.b.y);
+        ctx.stroke();
+      });
+    }
+
+    // ❌ 틀렸을 때
+    function wrongAnswer(lineData) {
+      mistakes++;
+      if (mistakes <= 3) hearts[mistakes - 1].src = "../img/window4/자산%2016.png";
+
+      setTimeout(() => {
+        activeLines = activeLines.filter(l => l !== lineData);
+        redrawLines();
+      }, 600);
+
+      character.src = wrongChar;
+      speech.src = wrongSpeech;
+      speech.className = "speech wrong"; // ❗ 단순 교체만
+
+      if (mistakes >= 3) {
+        setTimeout(() => {
+          speech.src = endSpeech;
+          speech.className = "speech end"; // ❗ 단순 교체만
+        }, 2000);
+      }
+    }
+
+    // ✅ 맞았을 때
+    function rightAnswer() {
+      character.src = normalChar;
+      speech.src = normalSpeech;
+      speech.className = "speech"; // 기본 위치로 복귀
+    }
+
+    // 🎬 2라운드로 이동
+    function nextRound() {
+      round = 2;
+      mistakes = 0;
+      activeLines = [];
+      matchedPairs = [];
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      stage.style.background = "url('../img/window4/자산%2012.png') no-repeat center center";
+      stage.style.backgroundSize = "contain";
+
+      X.src = "../img/window4/자산%2014.png";
+      hearts.forEach(h => (h.src = "../img/window4/자산%2015.png"));
+      character.src = normalChar;
+      speech.src = normalSpeech;
+      speech.className = "speech";
+      X.style.bottom = "143px";  // y좌표 (아래쪽 여백)
+      X.style.left = "550px";    // x좌표 (가로 위치)
+      X.style.width = "450px";   // 크기
+
+    }
+
+    // 🖱️ 점 클릭 로직
+    dots.forEach(dot => {
+      dot.addEventListener("click", () => {
+        if (!selected) {
+          selected = dot;
+          dot.style.background = "rgba(255,255,255,0.8)";
+        } else {
+          if (dot === selected) return;
+
+          const isCorrect =
+            round === 1 &&
+            correctPairs1[selected.classList[1]] === dot.classList[1] &&
+            !matchedPairs.includes(selected.classList[1]) &&
+            !matchedPairs.includes(dot.classList[1]);
+
+          const line = drawLine(selected, dot);
+          activeLines.push(line);
+
+          if (round === 1) {
+            if (isCorrect) {
+              selected.style.background = "rgba(0,255,0,0.4)";
+              dot.style.background = "rgba(0,255,0,0.4)";
+              rightAnswer();
+              matchedPairs.push(selected.classList[1], dot.classList[1]);
+              if (matchedPairs.length === 6) setTimeout(nextRound, 1000);
+            } else {
+              wrongAnswer(line);
+            }
+          } else {
+            wrongAnswer(line); // 2라운드는 전부 오답
+          }
+
+          selected.style.background = "rgba(255,255,255,0.5)";
+          selected = null;
+        }
+      });
+    });
+
+    window.addEventListener("resize", redrawLines);
+  </script>
+</body>
+</html>
