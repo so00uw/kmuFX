@@ -469,77 +469,104 @@ document.addEventListener('DOMContentLoaded', () => {
 <!-- ✅ 여기부터 "추가" 파트만 붙인 것 -->
 <!-- ============================ -->
 
-<!-- ✅ 증거 획득 팝업 -->
-<div id="final-popup" class="hidden" style="
-  position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
-  background: rgba(0,0,0,0.5); z-index: 2000;">
-  <img src="../img/window6/88.png" alt="증거획득창" style="width:600px;max-width:90%;">
-  <button id="final-okay-btn" style="
-    position:absolute; bottom:25%; left:50%; transform:translateX(-50%);
-    width:150px; height:60px; background:url('../img/window6/okay_btn.png') center/contain no-repeat;
-    border:none; cursor:pointer;"></button>
+<!-- ✅ 증거 획득 팝업 (팝업 + 버튼 모두 이미지로 구성) -->
+<div id="final-popup" class="hidden">
+  <img id="final-popup-img" src="../img/window6/88.png" alt="증거획득창">
+  <img id="final-okay-img" src="../img/window6/1010.png" alt="확인버튼">
 </div>
+
+<style>
+/* 팝업 전체 배경(어두운 반투명) */
+#final-popup {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.5);
+  z-index: 3000;
+}
+
+/* 팝업 이미지 */
+#final-popup-img {
+  width: 700px;       /* ✅ 팝업 크기 조절 */
+  max-width: 90%;
+  height: auto;
+  pointer-events: none; /* ✅ 클릭 차단 */
+}
+
+/* OKAY 버튼 (완전 이미지 버튼) */
+#final-okay-img {
+  position: absolute;
+  top: 74%;           /* ✅ 버튼 위치 조정 가능 */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 150px;       /* ✅ 버튼 크기 조절 가능 */
+  height: auto;
+  cursor: pointer;
+  z-index: 3100;
+  transition: transform 0.2s ease;
+}
+#final-okay-img:hover {
+  transform: translateX(-50%) scale(1.05);
+}
+#final-okay-img:active {
+  transform: translateX(-50%) scale(0.95);
+}
+</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const nextButton = document.getElementById('next-witness-button');
   const finalPopup = document.getElementById('final-popup');
-  const finalOkayBtn = document.getElementById('final-okay-btn');
-  const gameEndPopup = document.getElementById('game-end-popup');
+  const okayBtn = document.getElementById('final-okay-img');
   const gameUI = document.querySelector('.game-ui');
+  const gameEndPopup = document.getElementById('game-end-popup');
 
-  /* 현재 스테이지를 내부 변수에 의존하지 않고 추정: 배경 파일명으로 계산 */
+  /* ✅ 배경 파일명으로 스테이지 확인 */
   const bgOrder = ['22.png','33.png','44.png','55.png','66.png'];
-  function getCurrentStageIndexByBg(){
-    const bg = document.body.style.backgroundImage; // url(".../22.png")
+  function getCurrentStageIndexByBg() {
+    const bg = document.body.style.backgroundImage;
     const m = bg.match(/(\d+)\.png/);
-    if(!m) return -1;
-    const fname = m[0]; // "22.png"
-    return bgOrder.indexOf(fname);
+    if (!m) return -1;
+    return bgOrder.indexOf(m[0]);
   }
 
-  /* nextButton이 보여질 때 마지막이면 텍스트 바꿔주기 */
+  /* ✅ 버튼 표시 상태 감시 */
   const btnObserver = new MutationObserver(() => {
     if (!nextButton.classList.contains('hidden')) {
       const idx = getCurrentStageIndexByBg();
-      if (idx === 4) { // 5번째 스테이지 이후
-        nextButton.textContent = '증거 수집 완료';
-      } else {
-        nextButton.textContent = '다음 증인';
-      }
+      nextButton.textContent = (idx === 4) ? '증거 수집 완료' : '다음 증인';
     }
   });
-  btnObserver.observe(nextButton, { attributes:true, attributeFilter:['class'] });
+  btnObserver.observe(nextButton, { attributes: true, attributeFilter: ['class'] });
 
-  /* 마지막 버튼 동작 가로채기(캡처 단계에서 원래 핸들러 막음) */
+  /* ✅ 마지막이면 팝업 표시 */
   nextButton.addEventListener('click', (e) => {
     if (nextButton.textContent === '증거 수집 완료') {
       e.stopImmediatePropagation();
       e.preventDefault();
       finalPopup.classList.remove('hidden');
     }
-  }, true); // ← capture:true
+  }, true);
 
-  /* 혹시 원래 endGame이 호출돼서 game-ui가 숨겨지면, 대신 우리 팝업 띄우기 */
-  const uiObserver = new MutationObserver((mutList) => {
-    for(const m of mutList){
-      if(m.attributeName === 'class'){
-        if (gameUI.classList.contains('hidden')) {
-          // 원래 엔딩 팝업은 숨기고, 우리 팝업 표시
-          if (gameEndPopup) gameEndPopup.classList.add('hidden');
-          finalPopup.classList.remove('hidden');
-        }
-      }
+  /* ✅ 원래 endGame이 호출되면 팝업으로 대체 */
+  const uiObserver = new MutationObserver(() => {
+    if (gameUI.classList.contains('hidden')) {
+      if (gameEndPopup) gameEndPopup.classList.add('hidden');
+      finalPopup.classList.remove('hidden');
     }
   });
-  uiObserver.observe(gameUI, { attributes:true, attributeFilter:['class'] });
+  uiObserver.observe(gameUI, { attributes: true, attributeFilter: ['class'] });
 
-  /* Okay 버튼 → window7 이동 */
-  finalOkayBtn.addEventListener('click', () => {
+  /* ✅ OKAY 버튼 누르면 window7.html로 이동 */
+  okayBtn.addEventListener('click', () => {
     window.location.href = "../window7/window7.html";
   });
 });
 </script>
+
+
 
 </body>
 </html>
