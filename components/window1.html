@@ -57,6 +57,22 @@
       z-index: 5;
     }
 
+    /* ✅ 중앙 버튼 위치·크기 조정용 */
+    .center-box.custom {
+      top: 50%;        /* 버튼을 조금 아래로 */
+      left: 50%;       /* 가운데 정렬 유지 */
+      transform: translate(-50%, -50%);
+      width: 700px;    /* 버튼 영역 너비 */
+      height: auto;
+    }
+
+    /* 중앙 버튼 안의 실제 버튼 */
+    .center-box.custom #startButton {
+      padding: 25px 80px;  /* 버튼 크기 확장 */
+      font-size: 26px;     /* 글자 크기 증가 */
+      border-radius: 1px; /* 둥근 정도 확대 */
+    }
+
     .date {
       background: #fff;
       padding: 10px 20px;
@@ -66,18 +82,18 @@
       font-weight: bold;
     }
 
-    #startButton {
-      background: #d72323;
-      color: white;
-      border: none;
-      padding: 20px 60px;
-      font-size: 22px;
-      font-weight: bold;
-      cursor: pointer;
-      border-radius: 6px;
-      box-shadow: 0 5px 0 #a01010;
-      transition: 0.2s;
-    }
+#startButton {
+  background: #d72323;
+  color: white;
+  border: 5px solid #000000; /* ← solid 추가! */
+  padding: 20px 60px;
+  font-size: 22px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: 0.2s;
+}
+
 
     #startButton:active {
       transform: translateY(4px);
@@ -166,9 +182,13 @@
     <div class="floating-window" id="win17"></div>
     <div class="floating-window" id="win18"></div>
     <div class="floating-window" id="win19"></div>
+    <div class="floating-window" id="win20"></div>
 
-    <!-- 중앙 버튼 -->
-    <div class="center-box">
+
+
+
+    <!-- 중앙 버튼 (여기 class="center-box custom"으로 변경됨) -->
+    <div class="center-box custom">
       <button id="startButton">CLICK TO FIND X</button>
     </div>
   </div>
@@ -209,7 +229,7 @@
     "../img/image5.png","../img/image6.png","../img/image7.png","../img/image8.png",
     "../img/image9.png","../img/image10.png","../img/image11.png","../img/image12.png",
     "../img/image13.png","../img/image14.png","../img/image15.png","../img/image16.png",
-    "../img/image17.png","../img/image18.png","../img/image19.png"
+    "../img/image17.png","../img/image18.png","../img/image19.png", "../img/image30.png"
   ];
 
   // 위치 (배경 기준)
@@ -217,10 +237,10 @@
     { top: 30, left: 55 }, { top: 40, left: 10 }, { top: 10, left: 80 },
     { top: 30, left: 85 }, { top: 20, left: 80 }, { top: 1, left: 1 },
     { top: 3, left: 30 }, { top: 10, left: 10 }, { top: 80, left: 40 },
-    { top: 5, left: 5 }, { top: 4, left: 60 }, { top: 60, left: 25 },
-    { top: 45, left: 75 }, { top: 75, left: 5 }, { top: 70, left: 60 },
+    { top: 5, left: 5 }, { top: 4, left: 60 }, { top: 60, left: 35 },
+    { top: 45, left: 80 }, { top: 75, left: 5 }, { top: 70, left: 60 },
     { top: 60, left: 45 }, { top: 5, left: 70 }, { top: 50, left: 15 },
-    { top: 80, left: 10 }
+    { top: 80, left: 80 }, { top: 10, left: 80 }
   ];
 
   // 크기 (vw, vh)
@@ -230,8 +250,8 @@
     { w: 65, h: 65 }, { w: 50, h: 50 }, { w: 35, h: 35 },
     { w: 50, h: 50 }, { w: 35, h: 35 }, { w: 50, h: 50 },
     { w: 80, h: 80 }, { w: 40, h: 40 }, { w: 30, h: 30 },
-    { w: 50, h: 50 }, { w: 30, h: 30 }, { w: 50, h: 50 },
-    { w: 50, h: 50 }
+    { w: 50, h: 50 }, { w: 30, h: 30 }, { w: 40, h: 40 },
+    { w: 50, h: 50 }, { w: 30, h: 30 }
   ];
 
   const windows = document.querySelectorAll('.floating-window');
@@ -263,7 +283,6 @@
       }
     }
   });
-
   </script>
 </body>
 </html>
