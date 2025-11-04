@@ -263,6 +263,190 @@
       const hsVerify  = makeHotspot('verify', 1050, 630, 180, 60);
       const hsRefresh = makeHotspot('refresh', 120,  630, 140, 60);
       const hsInfo    = makeHotspot('info',   1120,  80,  40,  40);
+      // =========================
+// 6) 선택 요소(정사각형/누끼) 배치
+// =========================
+
+// 정답과 비활성 목록 (파일명에서 .png 뺀 baseName 사용)
+const correctAnswers = new Set(['grid_06', 'cut_06']);   // ← 원하는 정답으로 수정
+const disabledImages = new Set(['grid_01', 'grid_04', 'grid_07', 'grid_08', 'grid_09', 'grid_10', 'grid_11', 'grid_12']);              // ← 누끼가 덮은 정사각형 등 선택 불가 처리
+
+// 선택 상태
+const selected = new Set();
+
+// 공통 하이라이트(선택 시) 스타일 값
+const HIGHLIGHT_FILL = 'rgba(255,255,0,0.28)';  // 밝은 반투명 채움
+const HIGHLIGHT_OUTLINE = '0 0 0 2px #ffffff';  // 흰색 윤곽선
+
+// 유틸: 파일 경로에서 baseName 추출 (예: "img/window4/grid_03.png" → "grid_03")
+function getBaseName(src) {
+  const file = src.split('/').pop(); // grid_03.png
+  return file.replace(/\.[^.]+$/, ''); // grid_03
+}
+
+// 정사각형 추가
+function addSquare(src, left, top, size) {
+  const base = getBaseName(src);
+
+  const wrap = document.createElement('div');
+  wrap.className = 'sel square';
+  wrap.style.position = 'absolute';
+  wrap.style.left = left + 'px';
+  wrap.style.top = top + 'px';
+  wrap.style.width = size + 'px';
+  wrap.style.height = size + 'px';
+  wrap.style.cursor = disabledImages.has(base) ? 'not-allowed' : 'pointer';
+  wrap.style.zIndex = '2050';
+
+  const img = document.createElement('img');
+  img.src = src;
+  img.alt = base;
+  img.style.position = 'absolute';
+  img.style.inset = '0';
+  img.style.width = '100%';
+  img.style.height = '100%';
+  img.style.objectFit = 'cover';
+  img.draggable = false;
+  wrap.appendChild(img);
+
+  // 선택 오버레이(네모 채움 + 윤곽)
+  const ov = document.createElement('div');
+  ov.className = 'sel-ov';
+  ov.style.position = 'absolute';
+  ov.style.inset = '0';
+  ov.style.pointerEvents = 'none';
+  ov.style.background = 'transparent';
+  ov.style.boxShadow = 'none';
+  wrap.appendChild(ov);
+
+  // 클릭 토글
+  if (!disabledImages.has(base)) {
+    wrap.addEventListener('click', () => {
+      if (selected.has(base)) {
+        selected.delete(base);
+        ov.style.background = 'transparent';
+        ov.style.boxShadow = 'none';
+      } else {
+        selected.add(base);
+        ov.style.background = HIGHLIGHT_FILL;
+        ov.style.boxShadow = HIGHLIGHT_OUTLINE;
+      }
+    });
+  } else {
+   wrap.style.pointerEvents = 'none';    // 클릭 완전 차단
+  }
+
+  captcha.appendChild(wrap);
+}
+
+// 누끼(비정형) 추가 — 이미지 형태 마스킹으로 채움/윤곽
+function addCut(src, left, top, width, height) {
+  const base = getBaseName(src);
+
+  // 클릭 판정 영역(이미지 크기)
+  const wrap = document.createElement('div');
+  wrap.className = 'sel cut';
+  wrap.style.position = 'absolute';
+  wrap.style.left = left + 'px';
+  wrap.style.top = top + 'px';
+  wrap.style.width = width + 'px';
+  wrap.style.height = height + 'px';
+  wrap.style.cursor = 'pointer';
+  wrap.style.zIndex = '2050';
+
+  const img = document.createElement('img');
+  img.src = src;
+  img.alt = base;
+  img.style.position = 'absolute';
+  img.style.inset = '0';
+  img.style.width = '100%';
+  img.style.height = '100%';
+  img.style.objectFit = 'contain';
+  img.draggable = false;
+  wrap.appendChild(img);
+
+  // 마스크 오버레이(이미지 실루엣대로 채움)
+  const ov = document.createElement('div');
+  ov.className = 'sel-ov';
+  ov.style.position = 'absolute';
+  ov.style.inset = '0';
+  ov.style.pointerEvents = 'none';
+  // 마스크: 브라우저 지원을 넓히기 위해 webkit + 표준 둘 다 지정
+  ov.style.webkitMaskImage = `url(${src})`;
+  ov.style.maskImage = `url(${src})`;
+  ov.style.webkitMaskRepeat = 'no-repeat';
+  ov.style.maskRepeat = 'no-repeat';
+  ov.style.webkitMaskSize = 'contain';
+  ov.style.maskSize = 'contain';
+  ov.style.webkitMaskPosition = 'center';
+  ov.style.maskPosition = 'center';
+  ov.style.background = 'transparent';
+  ov.style.boxShadow = 'none';
+  wrap.appendChild(ov);
+
+  wrap.addEventListener('click', () => {
+    if (selected.has(base)) {
+      selected.delete(base);
+      ov.style.background = 'transparent';
+      ov.style.boxShadow = 'none';
+    } else {
+      selected.add(base);
+      ov.style.background = HIGHLIGHT_FILL;  // 실루엣 내부 채움
+      ov.style.boxShadow = HIGHLIGHT_OUTLINE; // 외곽선 느낌
+    }
+  });
+
+  captcha.appendChild(wrap);
+}
+
+// ===== 실제 배치(좌표는 예시) =====
+// 1280x720 기준 네가 만든 배경의 타일/누끼 위치로 숫자만 조정해줘.
+
+// 정사각형 3x3 예시
+addSquare('../img/window4/grid_01.png', 305, 150, 145);
+addSquare('../img/window4/grid_02.png', 312, 150, 145);
+addSquare('../img/window4/grid_03.png', 319, 150, 145);
+addSquare('../img/window4/grid_04.png', 326, 150, 145);
+addSquare('../img/window4/grid_05.png', 420, 400, 145); // disabled 예시
+addSquare('../img/window4/grid_06.png', 700, 400, 145);
+addSquare('../img/window4/grid_07.png', 420, 540, 145);
+addSquare('../img/window4/grid_08.png', 560, 540, 145);
+addSquare('../img/window4/grid_09.png', 420, 540, 145);
+addSquare('../img/window4/grid_10.png', 900, 540, 145);
+addSquare('../img/window4/grid_11.png', 1000, 540, 145);
+addSquare('../img/window4/grid_12.png', 1100, 540, 145);
+
+// 누끼 예시 2개
+addCut('../img/window4/cut_01.png', 380, 104, 170, 149);
+addCut('../img/window4/cut_02.png', 900, 320, 160, 200);
+
+// =========================
+// 7) refresh / verify 연결
+// =========================
+
+// refresh: 선택 초기화
+hsRefresh.addEventListener('click', () => {
+  selected.clear();
+  document.querySelectorAll('#captcha-stage .sel-ov').forEach(ov => {
+    ov.style.background = 'transparent';
+    ov.style.boxShadow = 'none';
+  });
+  console.log('[captcha] selections cleared');
+});
+
+// verify: 정답 검사 (정답 2개만 허용)
+hsVerify.addEventListener('click', () => {
+  const ok =
+    selected.size === correctAnswers.size &&
+    [...selected].every(name => correctAnswers.has(name));
+
+  console.log('[captcha] verify →', ok ? 'SUCCESS' : 'FAIL', { selected: [...selected] });
+
+  // 팝업 이미지를 다음 단계에서 붙일 예정이므로 여기서는 일단 경계선만 반짝
+  // (원하면 alert로 임시 확인)
+  // alert(ok ? '정답입니다!' : '틀렸습니다.');
+});
+
 
       ui.appendChild(hsVerify);
       ui.appendChild(hsRefresh);
