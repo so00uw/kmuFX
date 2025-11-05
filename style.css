@@ -10,7 +10,7 @@ html,body{ margin:0; height:100%; background:#000; color:#fff; font-family:syste
   width: 1920px;
   height: 1080px;
   background: #000;
-  transform-origin: top left; /* 변경: 기준점을 가운데로 */
+  transform-origin: 0 0; /* 변경: 기준점을 가운데로 */
 }
 
 
