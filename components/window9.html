@@ -6,13 +6,12 @@
 <title>Window 9 - Camera Auto Capture</title>
 
 <style>
-/* ✅ 도트 폰트 추가 */
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=DungGeunMo&display=swap');
 
 body {
   margin: 0;
-  background: #000;
+  background: transparent;
   overflow: hidden;
   height: 100vh;
   display: flex;
@@ -27,7 +26,6 @@ body {
   display: inline-block;
 }
 
-/* 🔹 프레임 이미지 */
 #frame {
   position: relative;
   display: block;
@@ -36,7 +34,6 @@ body {
   pointer-events: none;
 }
 
-/* 🔹 카메라 화면 */
 #camera {
   position: absolute;
   top: 55%;
@@ -48,7 +45,6 @@ body {
   z-index: 1;
 }
 
-/* 🔹 카운트다운 숫자 */
 #countdown {
   position: absolute;
   top: 50%;
@@ -60,7 +56,6 @@ body {
   z-index: 3;
 }
 
-/* 🔹 엔딩 화면 (X is You) */
 #ending-screen {
   position: fixed;
   inset: 0;
@@ -69,7 +64,7 @@ body {
   display: none;
   justify-content: center;
   align-items: center;
-  font-family: 'Press Start 2P', monospace; /* ✅ 도트 스타일 폰트 적용 */
+  font-family: 'Press Start 2P', monospace;
   font-size: 50px;
   letter-spacing: 2px;
   text-shadow:
@@ -79,7 +74,6 @@ body {
   animation: fadeIn 2s ease forwards;
 }
 
-/* 🔹 페이드인 효과 */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -94,7 +88,6 @@ body {
   <div id="countdown"></div>
 </div>
 
-<!-- ✅ 엔딩 화면 -->
 <div id="ending-screen">X is You</div>
 
 <script>
@@ -107,15 +100,18 @@ const endingScreen = document.getElementById('ending-screen');
 navigator.mediaDevices.getUserMedia({ video: true })
   .then(stream => {
     video.srcObject = stream;
-    video.addEventListener('loadedmetadata', () => {
-      // ✅ 3초 후 카운트다운 시작
+
+    // ✅ 실제로 카메라가 화면에 출력될 때 시작
+    video.onplaying = () => {
+      console.log("🎥 카메라 준비 완료! 3초 후 카운트다운 시작");
       setTimeout(startCountdown, 3000);
-    });
+    };
   })
   .catch(err => {
     alert('카메라 접근 권한이 필요합니다.');
     console.error(err);
   });
+
 
 // 🔹 카운트다운
 function startCountdown() {
@@ -134,13 +130,12 @@ function startCountdown() {
   }, 1000);
 }
 
-// 🔹 사진 촬영 (저장은 내부적으로만) → 바로 엔딩 전환
+// 🔹 사진 촬영 후 엔딩 전환
 function takePhoto() {
   const canvas = document.createElement('canvas');
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
   const ctx = canvas.getContext('2d');
-
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
   const overlay = new Image();
@@ -151,13 +146,29 @@ function takePhoto() {
   };
 }
 
-// 🔹 엔딩 화면 표시 후 window1.html로 이동
+// 🔹 엔딩 화면 표시 후 3초 뒤 index로 복귀
 function showEnding() {
   endingScreen.style.display = 'flex';
+  console.log("🎬 엔딩 화면 표시됨 (3초 카운트)");
+
+  // ✅ 안전한 parent 접근 (CORS 방지)
   setTimeout(() => {
-    window.location.href = "window1.html";
+    try {
+      if (window.parent && typeof window.parent.returnToWindow1 === "function") {
+        console.log("✅ 부모 함수 실행: returnToWindow1()");
+        window.parent.returnToWindow1();
+      } else {
+        console.warn("⚠️ 부모 접근 불가 → 단독 모드로 리디렉트");
+        window.location.href = "../components/window1.html";
+      }
+    } catch (e) {
+      console.error("❌ parent 접근 에러:", e);
+      // 완전 차단됐을 경우에도 3초 뒤 fallback
+      window.location.href = "../components/window1.html";
+    }
   }, 3000);
 }
 </script>
+
 </body>
 </html>

@@ -280,7 +280,14 @@ function startCaptcha() {
       const piece=document.createElement('img');
       piece.src='../img/window4/1111.png';
       Object.assign(piece.style,{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',width:'70%',height:'auto',objectFit:'contain',zIndex:'2400',cursor:'pointer'});
-      piece.onclick=()=>{ window.location.href="window5.html"; };
+     piece.onclick = () => {
+  if (window.parent && window.parent.showWindow6) {
+    window.parent.showWindow6();  // ✅ index의 showWindow6() 호출
+  } else {
+    window.location.href = "window6.html";  // fallback (단독 실행용)
+  }
+};
+
       pop.appendChild(piece);
     }else{
       const box=document.createElement('div');

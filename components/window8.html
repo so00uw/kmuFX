@@ -10,7 +10,7 @@
 
 body {
   margin: 0;
-  background: #dfe2eb;
+  background: transparent; /* ✅ 검은 배경 완전히 제거 */
   height: 100vh;
   display: flex;
   justify-content: center;
@@ -61,9 +61,15 @@ body {
   </div>
 
 <script>
-// 🔹 X 버튼 클릭 시 window9.html로 이동
+// 🔹 X 버튼 클릭 시 window9로 이동
 document.getElementById('close-btn').addEventListener('click', () => {
-  window.location.href = "window9.html";
+  if (window.parent && window.parent.showWindow9) {
+    console.log("✅ 부모의 showWindow9() 호출됨");
+    window.parent.showWindow9();  // index.html 내부 이동
+  } else {
+    console.log("⚠️ 부모 없음 → 단독 실행 모드로 window9.html로 이동");
+    window.location.href = "window9.html"; // 독립 실행 시
+  }
 });
 </script>
 </body>

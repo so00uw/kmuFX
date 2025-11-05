@@ -7,7 +7,7 @@
 <style>
   body {
     margin: 0;
-    background: #000;
+    background: transparent; /* ✅ 검은 배경 완전히 제거 */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -293,8 +293,16 @@ submit.addEventListener('click', () => {
 // ✅ OKAY 버튼 → 다음 페이지 이동
 okayBtn.addEventListener('click', () => {
   resultBox.style.display = 'none';
-  window.location.href = "window8.html";
+
+  if (window.parent && window.parent.showWindow8) {
+    console.log("✅ 부모의 showWindow8() 호출됨");
+    window.parent.showWindow8();   // index.html 내부 이동
+  } else {
+    console.log("⚠️ 부모 없음 → 단독 실행 모드로 window8.html로 이동");
+    window.location.href = "window8.html";  // 독립 실행 시
+  }
 });
+
 </script>
 </body>
 </html>
