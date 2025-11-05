@@ -11,7 +11,9 @@ function fitStage() {
   const stage = document.getElementById('stage');
 
   // 순서 바꿈: scale 먼저 → translate 나중
-  stage.style.transform = `scale(${s}) translate(-50%, -50%)`;
+  stage.style.transform = `translate(-50%, -50%) scale(${s})`; // ✅ 수정된 코드
+  stage.style.left = '50%'; // ✅ 추가: left/top 설정
+  stage.style.top = '50%'; // ✅ 추가: left/top 설정
 }
 window.addEventListener('load', fitStage);
 window.addEventListener('resize', fitStage);
