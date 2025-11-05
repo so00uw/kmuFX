@@ -2,18 +2,20 @@
 const STAGE_W = 1920, STAGE_H = 1080;
 
 function fitStage() {
+  const STAGE_W = 1920;
+  const STAGE_H = 1080;
   const vw = window.innerWidth;
   const vh = window.innerHeight;
 
   const s = Math.min(vw / STAGE_W, vh / STAGE_H);
   const stage = document.getElementById('stage');
 
-  // 🔹 translate + scale을 한 번에 적용 (덮어쓰기 문제 해결)
-  stage.style.transform = `translate(-50%, -50%) scale(${s})`;
+  // 순서 바꿈: scale 먼저 → translate 나중
+  stage.style.transform = `scale(${s}) translate(-50%, -50%)`;
 }
-
 window.addEventListener('load', fitStage);
 window.addEventListener('resize', fitStage);
+
 
 
 
