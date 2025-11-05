@@ -78,3 +78,9 @@ html,body{ margin:0; height:100%; background:#000; color:#fff; font-family:syste
 
 /* 숨김에 사용할 클래스(필요 시 JS에서 토글) */
 .hidden { opacity:0; }
+
+/* --- 창 잘림 방지 설정 --- */
+#stage,
+#layer-windows {
+  overflow: visible !important; /* 🔹 iframe이 잘리지 않게 */
+}

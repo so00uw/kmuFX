@@ -44,6 +44,12 @@
               style="width:700px; height:600px; position:absolute; left:50%; top:50%;
               transform:translate(-50%, -50%); border:none; background:transparent; overflow:hidden;
               z-index:5; display:none;"></iframe>
+      <iframe id="w4" src="components/window4.html"
+              scrolling="no"
+              style="width:693px; height:472px; position:absolute;
+              left:172px; top:446px;
+              border:none; background:transparent; overflow:hidden;
+              z-index:5; display:none;"></iframe>
     </div>
   </div>
 </body>
@@ -62,5 +68,27 @@
       }
       console.log('window2 표시됨');
     };
+
+    window.showWindow4 = function () {
+    console.log('window2 닫힘 → window4 표시');
+
+    // 1️⃣ window2 숨기기
+    const w2 = document.getElementById('w2');
+    if (w2) w2.style.display = 'none';
+
+    // 2️⃣ 특정 fake 창 제거
+    const fakesToRemove = ['fake5', 'fake6', 'fake7', 'fake15', 'fake16', 'fake19'];
+    fakesToRemove.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+
+    // 3️⃣ window4 표시
+    const w4 = document.getElementById('w4');
+    if (w4) {
+      w4.style.display = 'block';
+      setTimeout(() => w4.contentWindow && w4.contentWindow.focus(), 0);
+    }
+  };
   </script>
 </html>

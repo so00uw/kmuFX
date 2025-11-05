@@ -32,19 +32,19 @@
   <!-- 퍼즐 조각 획득 팝업 -->
   <div class="pzpop" id="pzpop1">
     <img src="../img/window2/pzpop_1.png" draggable="false">
-    <div class="pz-close" data-pz="1"></div>
+    <div class="pz-okay" data-pz="1"></div>
   </div>
   <div class="pzpop" id="pzpop2">
     <img src="../img/window2/pzpop_2.png" draggable="false">
-    <div class="pz-close" data-pz="2"></div>
+    <div class="pz-okay" data-pz="2"></div>
   </div>
   <div class="pzpop" id="pzpop3">
     <img src="../img/window2/pzpop_3.png" draggable="false">
-    <div class="pz-close" data-pz="3"></div>
+    <div class="pz-okay" data-pz="3"></div>
   </div>
   <div class="pzpop" id="pzpop4">
     <img src="../img/window2/pzpop_4.png" draggable="false">
-    <div class="pz-close" data-pz="4"></div>
+    <div class="pz-okay" data-pz="4"></div>
   </div>
 
   <style>
@@ -107,6 +107,15 @@
       background: transparent;
     }
 
+     .pz-okay {
+      position: absolute;
+      left: 50%; bottom: 30px; /* 이미지에서 okay 영역의 대략적 위치 */
+      transform: translateX(-50%);
+      width: 120px; height: 50px; /* okay 글자 위 대략적 크기 */
+      cursor: pointer;
+      background: transparent;
+     }
+
     .pzpop { z-index: 20; } /* 퍼즐 팝업이 위에 뜨도록 */
   </style>
 
@@ -114,7 +123,7 @@
     document.addEventListener('DOMContentLoaded', () => {
       const doors = document.querySelectorAll('#window2 .door');
       const popupCloses = document.querySelectorAll('#window2 .popup-close');
-      const pzCloses = document.querySelectorAll('#window2 .pz-close');
+      const okayButtons = document.querySelectorAll('#window2 .pz-okay');
 
       // 문 클릭 → 문 열리고 해당 팝업 열기
       doors.forEach((door, index) => {
@@ -138,12 +147,17 @@
       });
 
       // 퍼즐 팝업 X 클릭 → window2 전체 닫기
-      pzCloses.forEach(area => {
-        area.addEventListener('click', () => {
+       okayButtons.forEach(area => {
+        area.addEventListener('click', (e) => {
+          e.stopPropagation();
           const num = area.dataset.pz;
+          console.log(`퍼즐 조각 ${num} 획득! window4로 전환`);
+          
+          // 현재 창 제거
           const window2 = document.getElementById('window2');
           window2.remove();
-          console.log(`퍼즐 조각 ${num} 획득! window2 닫힘.`);
+
+          window.parent.showWindow4();
         });
       });
     });
