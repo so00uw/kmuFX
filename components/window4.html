@@ -13,7 +13,6 @@
     overflow: hidden;
   }
 
-  /* 무조건 중앙 고정 */
   #stage {
     position: absolute;
     top: 50%;
@@ -28,7 +27,6 @@
   .character { position: absolute; bottom: 43px; left: 170px; width: 300px; z-index: 5; }
   .X { position: absolute; bottom: 140px; left: 550px; width: 440px; z-index: 2; }
 
-  /* 💬 말풍선 위치 */
   .speech {
     position: absolute;
     bottom: 455px;
@@ -37,19 +35,8 @@
     z-index: 6;
   }
 
-  /* 💬 틀렸을 때 말풍선 */
-  .speech.wrong {
-    bottom: 455px;
-    left: 265px;
-    width: 50px;
-  }
-
-  /* 💬 마지막 대사 말풍선 */
-  .speech.end {
-    bottom: 455px;
-    left: 235px;
-    width: 120px;
-  }
+  .speech.wrong { bottom: 455px; left: 265px; width: 50px; }
+  .speech.end { bottom: 455px; left: 235px; width: 120px; }
 
   .hearts {
     position: absolute;
@@ -61,7 +48,6 @@
   }
   .hearts img { width: 60px; }
 
-  /* 점 고정 */
   .dot {
     position: absolute;
     width: 14px;
@@ -74,12 +60,9 @@
     z-index: 999;
   }
 
-  /* 윗줄 */
   .dot1 { top: 370px; left: 600px; }
   .dot2 { top: 370px; left: 780px; }
   .dot3 { top: 370px; left: 950px; }
-
-  /* 아랫줄 */
   .dot4 { top: 450px; left: 600px; }
   .dot5 { top: 450px; left: 780px; }
   .dot6 { top: 440px; left: 950px; }
@@ -134,14 +117,12 @@
     let matchedPairs = [];
 
     const correctPairs1 = { dot1: "dot5", dot2: "dot6", dot3: "dot4" };
-
     const normalChar = "../img/window4/자산%2013.png";
     const normalSpeech = "../img/window4/자산%2017.png";
     const wrongChar = "../img/window4/자산%2011.png";
     const wrongSpeech = "../img/window4/자산%2019.png";
     const endSpeech = "../img/window4/자산%2021.png";
 
-    // 점 중심 좌표
     function getDotCenter(dot) {
       const rect = dot.getBoundingClientRect();
       const stageRect = stage.getBoundingClientRect();
@@ -151,7 +132,6 @@
       };
     }
 
-    // 선 그리기
     function drawLine(dotA, dotB, color = "white") {
       const a = getDotCenter(dotA);
       const b = getDotCenter(dotB);
@@ -176,7 +156,6 @@
       });
     }
 
-    // ❌ 틀렸을 때
     function wrongAnswer(lineData) {
       mistakes++;
       if (mistakes <= 3) hearts[mistakes - 1].src = "../img/window4/자산%2016.png";
@@ -188,341 +167,235 @@
 
       character.src = wrongChar;
       speech.src = wrongSpeech;
-      speech.className = "speech wrong"; // ❗ 단순 교체만
+      speech.className = "speech wrong";
 
       if (mistakes >= 3) {
         setTimeout(() => {
           speech.src = endSpeech;
-          speech.className = "speech end"; // ❗ 단순 교체만
+          speech.className = "speech end";
           setTimeout(startRobotCheck, 2000);
         }, 2000);
       }
     }
-    
+
+    /* ✅ 캡차 구현부 (최신 버전 완성) */
     function startCaptcha() {
-      // 1) 기존 라운드 요소 전부 숨김
       const toHide = document.querySelectorAll('.dot, .speech, .character, .X, .hearts');
       toHide.forEach(el => el && (el.style.display = 'none'));
-      const canvas = document.getElementById('lineCanvas');
-       if (canvas) canvas.style.display = 'none';
-
-      // 이미 만들어져 있으면 중복 생성 방지
+      const lineCv = document.getElementById('lineCanvas');
+      if (lineCv) lineCv.style.display = 'none';
       if (document.getElementById('captcha-stage')) return;
 
-      // 2) 캡차 스테이지 컨테이너 생성
       const captcha = document.createElement('div');
       captcha.id = 'captcha-stage';
-      // 위치/크기: 기존 stage(1280x720) 안을 꽉 채움
-      captcha.style.position = 'absolute';
-      captcha.style.position = 'relative';
-      captcha.style.inset = '0';
-      captcha.style.width = '1280px';
-      captcha.style.height = '720px';
-      captcha.style.margin = '0 auto';
-      captcha.style.pointerEvents = 'auto';
-      captcha.style.zIndex = '20';
-
-      // 3) 배경(버튼 포함된 이미지) 삽입
-      //    ※ 여기서 bg 파일명은 네가 실제 사용하는 캡차용 배경으로 바꿔도 됨
+      Object.assign(captcha.style, {position:'absolute',inset:'0',width:'1280px',height:'720px',zIndex:'20'});
       captcha.innerHTML = `
         <img src="../img/window4/bg.png"
-            alt="captcha background"
-            style="position:absolute; inset:0; width:100%; height:100%; object-fit:contain; pointer-events:none;">
+          style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;">
       `;
-
-      // 4) stage에 추가
-      const stage = document.getElementById('stage');
       stage.appendChild(captcha);
-      // (다음 단계에서) selectable 이미지, 클릭영역, verify/refresh/i 핫스팟, 팝업 등을 붙일 예정
-      // 5) 버튼 핫스팟 레이어 (verify / refresh / info)
-      const ui = document.createElement('div');
-      ui.id = 'captcha-ui';
-      ui.style.position = 'absolute';
-      ui.style.inset = '0';
-      ui.style.zIndex = '2100';
-      captcha.appendChild(ui);
 
-      // 공통 스타일
-      function makeHotspot(cls, left, top, w, h) {
-        const el = document.createElement('div');
-        el.className = 'hotspot ' + cls;
-        el.style.position = 'absolute';
-        el.style.left = left + 'px';
-        el.style.top  = top + 'px';
-        el.style.width  = w + 'px';
-        el.style.height = h + 'px';
-        el.style.cursor = 'pointer';
-        el.style.background = 'rgba(255,255,255,0)'; // 클릭 영역만 (보이게 하려면 0.1~0.2로 잠깐 조정해도 됨)
-        return el;
+      const correctAnswers = new Set(['grid_06','cut_02']);
+      const selectedKeys = new Set();
+
+      function makeBox(src,left,top,w,h){
+        const key = src.split('/').pop().replace('.png','');
+        const wrap = document.createElement('div');
+        Object.assign(wrap.style,{position:'absolute',left:left+'px',top:top+'px',width:w+'px',height:h+'px',cursor:'pointer',zIndex:'2050'});
+        const img=document.createElement('img');
+        img.src=src;
+        Object.assign(img.style,{position:'absolute',inset:'0',width:'100%',height:'100%',objectFit:'contain',transition:'filter .15s ease'});
+        wrap.appendChild(img);
+
+        wrap.onclick=()=>{
+          if(selectedKeys.has(key)){
+            selectedKeys.delete(key);
+            img.style.filter='brightness(1)';
+          } else {
+            selectedKeys.add(key);
+            img.style.filter='brightness(0.6)';
+          }
+        };
+        captcha.appendChild(wrap);
       }
 
-      /* ⬇️ 임시 좌표(1280x720 기준). 배경의 아이콘 위치에 맞춰 숫자만 조정해줘.
-        - verify:  오른쪽 하단 버튼
-        - refresh: 왼쪽 하단 새로고침
-        - info:    우상단 'i' 아이콘 근처
-      */
-      const hsVerify  = makeHotspot('verify', 1050, 630, 180, 60);
-      const hsRefresh = makeHotspot('refresh', 120,  630, 140, 60);
-      const hsInfo    = makeHotspot('info',   1120,  80,  40,  40);
-      // =========================
-// 6) 선택 요소(정사각형/누끼) 배치
-// =========================
+      // ✅ 네가 준 좌표 그대로
+      makeBox("../img/window4/grid_01.png",305,150,160,160);
+      makeBox("../img/window4/grid_02.png",474,150,160,160);
+      makeBox("../img/window4/grid_03.png",644,150,160,160);
+      makeBox("../img/window4/grid_04.png",815,150,160,160);
+      makeBox("../img/window4/grid_05.png",305,320,160,160);
 
-// 정답과 비활성 목록 (파일명에서 .png 뺀 baseName 사용)
-const correctAnswers = new Set(['grid_06', 'cut_06']);   // ← 원하는 정답으로 수정
-const disabledImages = new Set(['grid_01', 'grid_04', 'grid_07', 'grid_08', 'grid_09', 'grid_10', 'grid_11', 'grid_12']);              // ← 누끼가 덮은 정사각형 등 선택 불가 처리
+      makeBox("../img/window4/grid_07.png",644,320,160,160);
+      makeBox("../img/window4/grid_08.png",815,320,160,160);
+      makeBox("../img/window4/grid_09.png",305,490,160,160);
+      makeBox("../img/window4/grid_10.png",474,490,160,160);
+      makeBox("../img/window4/grid_11.png",644,490,160,160);
+      makeBox("../img/window4/grid_12.png",815,490,160,160);
+      makeBox("../img/window4/cut_02.png",800,180,190,220);
+      makeBox("../img/window4/cut_04.png",580,220,300,320);
+      makeBox("../img/window4/cut_05.png",305,347,310,310);
+      makeBox("../img/window4/cut_06.png",585,289,380,480);
+      makeBox("../img/window4/cut_03.png",400,450,200,250);
+      makeBox("../img/window4/grid_06.png",474,320,160,160);
 
-// 선택 상태
-const selected = new Set();
+// ✅ VERIFY 버튼 (투명하게)
+const verifyBtn = document.createElement('div');
+Object.assign(verifyBtn.style, {
+  position: 'absolute',
+  left: '800px',
+  top: '650px',
+  width: '170px',
+  height: '60px',
+  cursor: 'pointer',
+  zIndex: '2100',
+  background: 'transparent', // 완전 투명
+  border: 'none',
+  opacity: '0', // 시각적으로 완전히 숨김
+});
+captcha.appendChild(verifyBtn);
 
-// 공통 하이라이트(선택 시) 스타일 값
-const HIGHLIGHT_FILL = 'rgba(255,255,0,0.28)';  // 밝은 반투명 채움
-const HIGHLIGHT_OUTLINE = '0 0 0 2px #ffffff';  // 흰색 윤곽선
+// ✅ RESET 버튼 (투명하게)
+const backBtn = document.createElement('div');
+Object.assign(backBtn.style, {
+  position: 'absolute',
+  left: '300px',
+  top: '670px',
+  width: '60px',
+  height: '40px',
+  cursor: 'pointer',
+  zIndex: '2100',
+  background: 'transparent', // 완전 투명
+  border: 'none',
+  opacity: '0', // 시각적으로 완전히 숨김
+});
+captcha.appendChild(backBtn);
 
-// 유틸: 파일 경로에서 baseName 추출 (예: "img/window4/grid_03.png" → "grid_03")
-function getBaseName(src) {
-  const file = src.split('/').pop(); // grid_03.png
-  return file.replace(/\.[^.]+$/, ''); // grid_03
-}
 
-// 정사각형 추가
-function addSquare(src, left, top, size) {
-  const base = getBaseName(src);
+      // RESET 선택 초기화
+      backBtn.onclick=()=>{
+        selectedKeys.clear();
+        document.querySelectorAll('#captcha-stage img').forEach(i=>{
+          if(!i.src.includes('bg.png')) i.style.filter='brightness(1)';
+        });
+      };
 
-  const wrap = document.createElement('div');
-  wrap.className = 'sel square';
-  wrap.style.position = 'absolute';
-  wrap.style.left = left;
-  wrap.style.top = top;
-  wrap.style.width = size;
-  wrap.style.height = size;
-  wrap.style.cursor = disabledImages.has(base) ? 'not-allowed' : 'pointer';
-  wrap.style.zIndex = '2050';
+      // ✅ VERIFY: 두 정답 중 하나만 선택돼도 통과
+    // ✅ VERIFY: 두 정답 중 하나만 선택돼도 통과
+verifyBtn.onclick = () => {
+  const hasCorrect = [...selectedKeys].some(k => correctAnswers.has(k));
 
-  const img = document.createElement('img');
-  img.src = src;
-  img.alt = base;
-  img.style.position = 'absolute';
-  img.style.inset = '0';
-  img.style.width = '100%';
-  img.style.height = '100%';
-  img.style.objectFit = 'cover';
-  img.draggable = false;
-  wrap.appendChild(img);
+  // 어두운 오버레이(전체 팝업 컨테이너)
+  const pop = document.createElement('div');
+  Object.assign(pop.style, {
+    position: 'absolute',
+    inset: '0',
+    background: 'rgba(0,0,0,0.45)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: '2300'
+  });
 
-  // 선택 오버레이(네모 채움 + 윤곽)
-  const ov = document.createElement('div');
-  ov.className = 'sel-ov';
-  ov.style.position = 'absolute';
-  ov.style.inset = '0';
-  ov.style.pointerEvents = 'none';
-  ov.style.background = 'transparent';
-  ov.style.boxShadow = 'none';
-  wrap.appendChild(ov);
+  if (hasCorrect) {
+    // ✅ 전체 화면을 덮는 이미지
+  const piece = document.createElement('img');
+  piece.src = '../img/window4/1111.png';
+  Object.assign(piece.style, {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)', // 화면 정중앙 정렬
+  width: '70%',   // 전체 창의 70% 너비
+  height: 'auto', // 자동 비율 유지
+  objectFit: 'contain', // 이미지 잘리지 않게 유지
+  zIndex: '2400',
+  cursor: 'pointer'
+});
 
-  // 클릭 토글
-  if (!disabledImages.has(base)) {
-    wrap.addEventListener('click', () => {
-      if (selected.has(base)) {
-        selected.delete(base);
-        ov.style.background = 'transparent';
-        ov.style.boxShadow = 'none';
-      } else {
-        selected.add(base);
-        ov.style.background = HIGHLIGHT_FILL;
-        ov.style.boxShadow = HIGHLIGHT_OUTLINE;
-      }
-    });
+    // ✅ 이미지를 클릭하면 window5.html로 이동
+    piece.onclick = () => {
+      window.location.href = "window5.html";
+    };
+
+    pop.appendChild(piece);
   } else {
-   wrap.style.pointerEvents = 'none';    // 클릭 완전 차단
+    // ❌ 오답일 때만 작은 박스 표시
+    const box = document.createElement('div');
+    Object.assign(box.style, {
+      background: 'rgba(0,0,0,0.75)',
+      color: '#fff',
+      borderRadius: '12px',
+      padding: '20px 26px',
+      textAlign: 'center',
+      fontFamily: 'system-ui',
+      fontSize: '22px'
+    });
+    box.textContent = '틀렸습니다!';
+    pop.appendChild(box);
+
+    // 1.5초 후 닫기
+    setTimeout(() => pop.remove(), 1500);
   }
 
-  captcha.appendChild(wrap);
-}
-
-// 누끼(비정형) 추가 — 이미지 형태 마스킹으로 채움/윤곽
-function addCut(src, left, top, width, height) {
-  const base = getBaseName(src);
-
-  // 클릭 판정 영역(이미지 크기)
-  const wrap = document.createElement('div');
-  wrap.className = 'sel cut';
-  wrap.style.position = 'absolute';
-  wrap.style.left = left;
-  wrap.style.top = top;
-  wrap.style.width = width;
-  wrap.style.height = height;
-  wrap.style.cursor = 'pointer';
-  wrap.style.zIndex = '2050';
-
-  const img = document.createElement('img');
-  img.src = src;
-  img.alt = base;
-  img.style.position = 'absolute';
-  img.style.inset = '0';
-  img.style.width = '100%';
-  img.style.height = '100%';
-  img.style.objectFit = 'contain';
-  img.draggable = false;
-  wrap.appendChild(img);
-
-  // 마스크 오버레이(이미지 실루엣대로 채움)
-  const ov = document.createElement('div');
-  ov.className = 'sel-ov';
-  ov.style.position = 'absolute';
-  ov.style.inset = '0';
-  ov.style.pointerEvents = 'none';
-  // 마스크: 브라우저 지원을 넓히기 위해 webkit + 표준 둘 다 지정
-  ov.style.webkitMaskImage = `url(${src})`;
-  ov.style.maskImage = `url(${src})`;
-  ov.style.webkitMaskRepeat = 'no-repeat';
-  ov.style.maskRepeat = 'no-repeat';
-  ov.style.webkitMaskSize = 'contain';
-  ov.style.maskSize = 'contain';
-  ov.style.webkitMaskPosition = 'center';
-  ov.style.maskPosition = 'center';
-  ov.style.background = 'transparent';
-  ov.style.boxShadow = 'none';
-  wrap.appendChild(ov);
-
-  wrap.addEventListener('click', () => {
-    if (selected.has(base)) {
-      selected.delete(base);
-      ov.style.background = 'transparent';
-      ov.style.boxShadow = 'none';
-    } else {
-      selected.add(base);
-      ov.style.background = HIGHLIGHT_FILL;  // 실루엣 내부 채움
-      ov.style.boxShadow = HIGHLIGHT_OUTLINE; // 외곽선 느낌
-    }
-  });
-
-  captcha.appendChild(wrap);
-}
-
-// ===== 실제 배치(좌표는 예시) =====
-// 1280x720 기준 네가 만든 배경의 타일/누끼 위치로 숫자만 조정해줘.
-
-// 정사각형 3x3 예시
-addSquare('../img/window4/grid_01.png', '24.30%', '21.11%', '12.34%');
-addSquare('../img/window4/grid_02.png', '37.19%','21.11%', '12.34%');
-addSquare('../img/window4/grid_03.png', '50.08%', '21.11%', '12.34%');
-addSquare('../img/window4/grid_04.png', '62.97%', '21.11%', '12.34%');
-addSquare('../img/window4/grid_05.png', '24.30%', '44.03%', '12.34%'); // disabled 예시
-addSquare('../img/window4/grid_06.png', '37.19%', '44.03%', '12.34%');
-addSquare('../img/window4/grid_07.png', '50.00%', '44.03%', '12.34%');
-addSquare('../img/window4/grid_08.png', '62.97%', '44.03%', '12.34%');
-addSquare('../img/window4/grid_09.png', '24.30%', '66.94%', '12.34%');
-addSquare('../img/window4/grid_10.png', '37.19%', '66.94%', '12.34%');
-addSquare('../img/window4/grid_11.png', '50.00%', '66.94%', '12.34%');
-addSquare('../img/window4/grid_12.png', '62.97%', '66.94%', '12.34%');
-
-// 누끼 예시 2개
-addCut('../img/window4/cut_01.png', '24.30%', '21.11%', '15.86%', '24.72%');
-addCut('../img/window4/cut_02.png', '61.72%', '22.22%', '13.67%', '33.61%');
-addCut('../img/window4/cut_04.png', '48.83%', '32.08%', '13.98%', '44.17%' );
-addCut('../img/window4/cut_05.png', '24.30%', '53.47%', '13.96%', '36.53%' );
-addCut('../img/window4/cut_03.png', '37.19%', '61.94%', '11.48%', '35.42%' );
-addCut('../img/window4/cut_06.png', '45.31', '55.00%', '30.47%', '34.72%' );
-
-// =========================
-// 7) refresh / verify 연결
-// =========================
-
-// refresh: 선택 초기화
-hsRefresh.addEventListener('click', () => {
-  selected.clear();
-  document.querySelectorAll('#captcha-stage .sel-ov').forEach(ov => {
-    ov.style.background = 'transparent';
-    ov.style.boxShadow = 'none';
-  });
-  console.log('[captcha] selections cleared');
-});
-
-// verify: 정답 검사 (정답 2개만 허용)
-hsVerify.addEventListener('click', () => {
-  const ok =
-    selected.size === correctAnswers.size &&
-    [...selected].every(name => correctAnswers.has(name));
-
-  console.log('[captcha] verify →', ok ? 'SUCCESS' : 'FAIL', { selected: [...selected] });
-
-  // 팝업 이미지를 다음 단계에서 붙일 예정이므로 여기서는 일단 경계선만 반짝
-  // (원하면 alert로 임시 확인)
-  // alert(ok ? '정답입니다!' : '틀렸습니다.');
-});
-
-
-      ui.appendChild(hsVerify);
-      ui.appendChild(hsRefresh);
-      ui.appendChild(hsInfo);
-
-      // 동작: info = hover 표시(툴팁), refresh = 선택 초기화, verify = 정답 검사(다음 단계에서 연결)
-      let infoTip = null;
-      hsInfo.addEventListener('mouseenter', () => {
-        if (infoTip) return;
-        infoTip = document.createElement('div');
-        infoTip.textContent = '정답은 2개입니다';
-        infoTip.style.position = 'absolute';
-        infoTip.style.left = (hsInfo.offsetLeft - 10) + 'px';
-        infoTip.style.top  = (hsInfo.offsetTop + hsInfo.offsetHeight + 8) + 'px';
-        infoTip.style.padding = '8px 10px';
-        infoTip.style.borderRadius = '8px';
-        infoTip.style.background = 'rgba(0,0,0,0.8)';
-        infoTip.style.color = '#fff';
-        infoTip.style.font = '14px/1.2 system-ui, -apple-system, Segoe UI, Roboto';
-        infoTip.style.zIndex = '2200';
-        ui.appendChild(infoTip);
-      });
-      hsInfo.addEventListener('mouseleave', () => {
-        if (infoTip) { infoTip.remove(); infoTip = null; }
-      });
-
-      // refresh = 선택 초기화 (선택 로직은 다음 단계에서 붙일 예정이므로, 지금은 이벤트 연결만)
-      hsRefresh.addEventListener('click', () => {
-        // 다음 단계에서 selectable 요소 선택 배열을 초기화하는 함수를 연결할 거야.
-        // 예: resetSelections();
-        console.log('[captcha] refresh clicked');
-      });
-
-      // verify = 정답 검사 트리거 (다음 단계에서 실제 검사 함수 연결)
-      hsVerify.addEventListener('click', () => {
-        // 다음 단계에서 checkAnswers()와 팝업 표시를 연결할 거야.
-        console.log('[captcha] verify clicked');
-      });
+  // 팝업 추가
+  captcha.appendChild(pop);
+};
 
     }
 
-    // ✅ 맞았을 때
-    function rightAnswer() {
-      character.src = normalChar;
-      speech.src = normalSpeech;
-      speech.className = "speech"; // 기본 위치로 복귀
+    function startRobotCheck() {
+      if (document.getElementById('robot-check')) return;
+      const overlay=document.createElement('div');
+      Object.assign(overlay.style,{position:'absolute',inset:'0',background:'rgba(0,0,0,0.45)',zIndex:'2000',display:'flex',alignItems:'center',justifyContent:'center'});
+
+      const card=document.createElement('div');
+      Object.assign(card.style,{width:'520px',background:'#fff',borderRadius:'10px',padding:'22px 24px',boxShadow:'0 20px 60px rgba(0,0,0,.35)'});
+
+      const checkbox=document.createElement('input');
+      checkbox.type='checkbox';
+      checkbox.id='rbx';
+      Object.assign(checkbox.style,{width:'24px',height:'24px',cursor:'pointer'});
+
+      const label=document.createElement('label');
+      label.htmlFor='rbx';
+      label.textContent="I'm not a robot";
+      label.style.fontSize='20px';
+
+      const top=document.createElement('div');
+      Object.assign(top.style,{display:'flex',alignItems:'center',gap:'14px',marginBottom:'14px'});
+      top.appendChild(checkbox);
+      top.appendChild(label);
+
+      const hint=document.createElement('div');
+      hint.textContent='이 확인 후 이미지 검증 단계로 진행됩니다.';
+      hint.style.fontSize='13px';
+      hint.style.color='#666';
+
+      const btn=document.createElement('button');
+      btn.textContent='확인';
+      Object.assign(btn.style,{padding:'10px 16px',border:'1px solid #e0e0e0',borderRadius:'8px',background:'#1976d2',color:'#fff',fontSize:'14px',cursor:'pointer'});
+      btn.onclick=()=>{
+        if(!checkbox.checked){
+          checkbox.style.outline='2px solid #f44336';
+          setTimeout(()=>checkbox.style.outline='none',500);
+          return;
+        }
+        overlay.remove();
+        startCaptcha();
+      };
+
+      const bottom=document.createElement('div');
+      Object.assign(bottom.style,{display:'flex',alignItems:'center',justifyContent:'space-between',marginTop:'10px'});
+      bottom.appendChild(hint);
+      bottom.appendChild(btn);
+
+      card.appendChild(top);
+      card.appendChild(bottom);
+      overlay.appendChild(card);
+      stage.appendChild(overlay);
     }
 
-    // 🎬 2라운드로 이동
-    function nextRound() {
-      round = 2;
-      mistakes = 0;
-      activeLines = [];
-      matchedPairs = [];
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      stage.style.background = "url('../img/window4/자산%2012.png') no-repeat center center";
-      stage.style.backgroundSize = "contain";
-
-      X.src = "../img/window4/자산%2014.png";
-      hearts.forEach(h => (h.src = "../img/window4/자산%2015.png"));
-      character.src = normalChar;
-      speech.src = normalSpeech;
-      speech.className = "speech";
-      X.style.bottom = "143px";  // y좌표 (아래쪽 여백)
-      X.style.left = "550px";    // x좌표 (가로 위치)
-      X.style.width = "450px";   // 크기
-
-    }
-
-    // 🖱️ 점 클릭 로직
     dots.forEach(dot => {
       dot.addEventListener("click", () => {
         if (!selected) {
@@ -530,133 +403,21 @@ hsVerify.addEventListener('click', () => {
           dot.style.background = "rgba(255,255,255,0.8)";
         } else {
           if (dot === selected) return;
-
-          const isCorrect =
-            round === 1 &&
-            correctPairs1[selected.classList[1]] === dot.classList[1] &&
-            !matchedPairs.includes(selected.classList[1]) &&
-            !matchedPairs.includes(dot.classList[1]);
-
+          const isCorrect = round === 1 && correctPairs1[selected.classList[1]] === dot.classList[1] && !matchedPairs.includes(selected.classList[1]) && !matchedPairs.includes(dot.classList[1]);
           const line = drawLine(selected, dot);
           activeLines.push(line);
-
           if (round === 1) {
             if (isCorrect) {
               selected.style.background = "rgba(0,255,0,0.4)";
               dot.style.background = "rgba(0,255,0,0.4)";
-              rightAnswer();
               matchedPairs.push(selected.classList[1], dot.classList[1]);
-              if (matchedPairs.length === 6) setTimeout(nextRound, 1000);
-            } else {
-              wrongAnswer(line);
-            }
-          } else {
-            wrongAnswer(line); // 2라운드는 전부 오답
-          }
-
-          selected.style.background = "rgba(255,255,255,0.5)";
+              if (matchedPairs.length === 6) setTimeout(()=>round=2,1000);
+            } else wrongAnswer(line);
+          } else wrongAnswer(line);
           selected = null;
         }
       });
     });
-
-    window.addEventListener("resize", redrawLines);
-    function startRobotCheck() {
-      // 이미 떠있으면 중복 생성 방지
-      if (document.getElementById('robot-check')) return;
-
-      const stage = document.getElementById('stage');
-
-      // 반투명 오버레이
-      const overlay = document.createElement('div');
-      overlay.id = 'robot-check';
-      overlay.style.position = 'absolute';
-      overlay.style.inset = '0';
-      overlay.style.background = 'rgba(0,0,0,0.45)';
-      overlay.style.zIndex = '25';
-      overlay.style.zIndex = '2000';
-      overlay.style.display = 'flex';
-      overlay.style.alignItems = 'center';
-      overlay.style.justifyContent = 'center';
-
-      // 로봇이 아닙니다 카드
-      const card = document.createElement('div');
-      card.style.width = '520px';
-      card.style.background = '#fff';
-      card.style.borderRadius = '10px';
-      card.style.boxShadow = '0 20px 60px rgba(0,0,0,.35)';
-      card.style.padding = '22px 24px';
-      card.style.fontFamily = 'system-ui, -apple-system, Segoe UI, Roboto';
-      card.style.color = '#222';
-
-      // 상단 영역 (체크박스 + 라벨)
-      const top = document.createElement('div');
-      top.style.display = 'flex';
-      top.style.alignItems = 'center';
-      top.style.gap = '14px';
-      top.style.marginBottom = '14px';
-
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.id = 'rbx';
-      checkbox.style.width = '24px';
-      checkbox.style.height = '24px';
-      checkbox.style.cursor = 'pointer';
-
-      const label = document.createElement('label');
-      label.htmlFor = 'rbx';
-      label.textContent = "I'm not a robot";
-      label.style.fontSize = '20px';
-      label.style.cursor = 'pointer';
-
-      top.appendChild(checkbox);
-      top.appendChild(label);
-
-      // 하단 영역 (확인 버튼 + 안내)
-      const bottom = document.createElement('div');
-      bottom.style.display = 'flex';
-      bottom.style.alignItems = 'center';
-      bottom.style.justifyContent = 'space-between';
-      bottom.style.marginTop = '10px';
-
-      const hint = document.createElement('div');
-      hint.textContent = '이 확인 후 이미지 검증 단계로 진행됩니다.';
-      hint.style.fontSize = '13px';
-      hint.style.color = '#666';
-
-      const btn = document.createElement('button');
-      btn.textContent = '확인';
-      btn.style.padding = '10px 16px';
-      btn.style.border = '1px solid #e0e0e0';
-      btn.style.borderRadius = '8px';
-      btn.style.background = '#1976d2';
-      btn.style.color = '#fff';
-      btn.style.fontSize = '14px';
-      btn.style.cursor = 'pointer';
-
-      // 버튼 동작
-      btn.addEventListener('click', () => {
-        if (!checkbox.checked) {
-          // 체크 안 했을 때 살짝 강조
-          checkbox.style.outline = '2px solid #f44336';
-          setTimeout(() => (checkbox.style.outline = 'none'), 500);
-          return;
-        }
-        // 통과 → 오버레이 제거 → 캡차 시작
-        overlay.remove();
-        startCaptcha();
-      });
-
-      bottom.appendChild(hint);
-      bottom.appendChild(btn);
-
-      // 구성 조립
-      card.appendChild(top);
-      card.appendChild(bottom);
-      overlay.appendChild(card);
-      stage.appendChild(overlay);
-    }
-
   </script>
 </body>
 </html>
