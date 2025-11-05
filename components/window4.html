@@ -214,6 +214,7 @@
       captcha.id = 'captcha-stage';
       // 위치/크기: 기존 stage(1280x720) 안을 꽉 채움
       captcha.style.position = 'absolute';
+      captcha.style.position = 'relative';
       captcha.style.inset = '0';
       captcha.style.width = '1280px';
       captcha.style.height = '720px';
@@ -291,10 +292,10 @@ function addSquare(src, left, top, size) {
   const wrap = document.createElement('div');
   wrap.className = 'sel square';
   wrap.style.position = 'absolute';
-  wrap.style.left = left + 'px';
-  wrap.style.top = top + 'px';
-  wrap.style.width = size + 'px';
-  wrap.style.height = size + 'px';
+  wrap.style.left = left;
+  wrap.style.top = top;
+  wrap.style.width = size;
+  wrap.style.height = size;
   wrap.style.cursor = disabledImages.has(base) ? 'not-allowed' : 'pointer';
   wrap.style.zIndex = '2050';
 
@@ -347,10 +348,10 @@ function addCut(src, left, top, width, height) {
   const wrap = document.createElement('div');
   wrap.className = 'sel cut';
   wrap.style.position = 'absolute';
-  wrap.style.left = left + 'px';
-  wrap.style.top = top + 'px';
-  wrap.style.width = width + 'px';
-  wrap.style.height = height + 'px';
+  wrap.style.left = left;
+  wrap.style.top = top;
+  wrap.style.width = width;
+  wrap.style.height = height;
   wrap.style.cursor = 'pointer';
   wrap.style.zIndex = '2050';
 
@@ -403,22 +404,26 @@ function addCut(src, left, top, width, height) {
 // 1280x720 기준 네가 만든 배경의 타일/누끼 위치로 숫자만 조정해줘.
 
 // 정사각형 3x3 예시
-addSquare('../img/window4/grid_01.png', 305, 150, 145);
-addSquare('../img/window4/grid_02.png', 312, 150, 145);
-addSquare('../img/window4/grid_03.png', 319, 150, 145);
-addSquare('../img/window4/grid_04.png', 326, 150, 145);
-addSquare('../img/window4/grid_05.png', 420, 400, 145); // disabled 예시
-addSquare('../img/window4/grid_06.png', 700, 400, 145);
-addSquare('../img/window4/grid_07.png', 420, 540, 145);
-addSquare('../img/window4/grid_08.png', 560, 540, 145);
-addSquare('../img/window4/grid_09.png', 420, 540, 145);
-addSquare('../img/window4/grid_10.png', 900, 540, 145);
-addSquare('../img/window4/grid_11.png', 1000, 540, 145);
-addSquare('../img/window4/grid_12.png', 1100, 540, 145);
+addSquare('../img/window4/grid_01.png', '24.30%', '21.11%', '12.34%');
+addSquare('../img/window4/grid_02.png', '37.19%','21.11%', '12.34%');
+addSquare('../img/window4/grid_03.png', '50.08%', '21.11%', '12.34%');
+addSquare('../img/window4/grid_04.png', '62.97%', '21.11%', '12.34%');
+addSquare('../img/window4/grid_05.png', '24.30%', '44.03%', '12.34%'); // disabled 예시
+addSquare('../img/window4/grid_06.png', '37.19%', '44.03%', '12.34%');
+addSquare('../img/window4/grid_07.png', '50.00%', '44.03%', '12.34%');
+addSquare('../img/window4/grid_08.png', '62.97%', '44.03%', '12.34%');
+addSquare('../img/window4/grid_09.png', '24.30%', '66.94%', '12.34%');
+addSquare('../img/window4/grid_10.png', '37.19%', '66.94%', '12.34%');
+addSquare('../img/window4/grid_11.png', '50.00%', '66.94%', '12.34%');
+addSquare('../img/window4/grid_12.png', '62.97%', '66.94%', '12.34%');
 
 // 누끼 예시 2개
-addCut('../img/window4/cut_01.png', 380, 104, 170, 149);
-addCut('../img/window4/cut_02.png', 900, 320, 160, 200);
+addCut('../img/window4/cut_01.png', '24.30%', '21.11%', '15.86%', '24.72%');
+addCut('../img/window4/cut_02.png', '61.72%', '22.22%', '13.67%', '33.61%');
+addCut('../img/window4/cut_04.png', '48.83%', '32.08%', '13.98%', '44.17%' );
+addCut('../img/window4/cut_05.png', '24.30%', '53.47%', '13.96%', '36.53%' );
+addCut('../img/window4/cut_03.png', '37.19%', '61.94%', '11.48%', '35.42%' );
+addCut('../img/window4/cut_06.png', '45.31', '55.00%', '30.47%', '34.72%' );
 
 // =========================
 // 7) refresh / verify 연결
