@@ -8,13 +8,10 @@ function fitStage() {
   const vh = window.innerHeight;
 
   const s = Math.min(vw / STAGE_W, vh / STAGE_H);
-  const stage = document.getElementById('stage');
 
-  stage.style.left = '50%'; 
-  stage.style.top = '50%';
+  // ✅ 계산된 s 값을 CSS 변수로 설정. CSS가 중앙 정렬을 담당
+  root.style.setProperty('--s', s);
 
-  // 순서 바꿈: scale 먼저 → translate 나중
-  stage.style.transform = `translate(-50%, -50%) scale(${s})`; // ✅ 수정된 코드
 }
 
 window.addEventListener('load', fitStage);
