@@ -1,22 +1,19 @@
 /* ── 1) 스테이지 전체 스케일(모니터 비율 달라도 레이아웃 고정) */
+/* ── 1) 스테이지 전체 스케일(모니터 비율 달라도 레이아웃 고정) */
 const STAGE_W = 1920, STAGE_H = 1080;
 
 function fitStage(){
-  // 수정된 부분 🔻
-  // window.innerWidth / innerHeight → document.documentElement.clientWidth / clientHeight 로 변경
   const vw = document.documentElement.clientWidth;
   const vh = document.documentElement.clientHeight;
-
-  // 비율 계산 동일
   const s = Math.min(vw / STAGE_W, vh / STAGE_H);
-
-  // 스테이지 변환 적용
   const stage = document.getElementById('stage');
-  stage.style.transform = `translate(-50%, -50%) scale(${s})`;
+  // translate는 CSS가 하니까 scale만 적용
+  stage.style.transform = `scale(${s})`;
 }
 
 addEventListener('load', fitStage);
 addEventListener('resize', fitStage);
+
 
 /* ── 2) 창 드래그(제목바 잡고 이동) */
 function makeDraggable(win){
