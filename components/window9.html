@@ -98,76 +98,75 @@ const endingScreen = document.getElementById('ending-screen');
 
 // 🔹 카메라 시작
 navigator.mediaDevices.getUserMedia({ video: true })
-  .then(stream => {
-    video.srcObject = stream;
+  .then(stream => {
+    video.srcObject = stream;
 
-    // ✅ 실제로 카메라가 화면에 출력될 때 시작
-    video.onplaying = () => {
-      console.log("🎥 카메라 준비 완료! 3초 후 카운트다운 시작");
-      setTimeout(startCountdown, 3000);
-    };
-  })
-  .catch(err => {
-    alert('카메라 접근 권한이 필요합니다.');
-    console.error(err);
-  });
-
+    // ✅ 실제로 카메라가 화면에 출력될 때 시작
+    video.onplaying = () => {
+      console.log("🎥 카메라 준비 완료! 3초 후 카운트다운 시작");
+      setTimeout(startCountdown, 3000);
+    };
+  })
+  .catch(err => {
+    alert('카메라 접근 권한이 필요합니다.');
+    console.error(err);
+  });
 
 // 🔹 카운트다운
 function startCountdown() {
-  let count = 3;
-  countdown.textContent = count;
+  let count = 3;
+  countdown.textContent = count;
 
-  const timer = setInterval(() => {
-    count--;
-    if (count > 0) {
-      countdown.textContent = count;
-    } else {
-      clearInterval(timer);
-      countdown.textContent = '';
-      takePhoto();
-    }
-  }, 1000);
+  const timer = setInterval(() => {
+    count--;
+    if (count > 0) {
+      countdown.textContent = count;
+    } else {
+      clearInterval(timer);
+      countdown.textContent = '';
+      takePhoto();
+    }
+  }, 1000);
 }
 
 // 🔹 사진 촬영 후 엔딩 전환
 function takePhoto() {
-  const canvas = document.createElement('canvas');
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-  const overlay = new Image();
-  overlay.src = frame.src;
-  overlay.onload = () => {
-    ctx.drawImage(overlay, 0, 0, canvas.width, canvas.height);
-    showEnding();
-  };
+  const overlay = new Image();
+  overlay.src = frame.src;
+  
+  // ✅ 중요 수정: 오버레이 로드 후, 엔딩 화면 표시 함수 호출!
+  overlay.onload = () => {
+    ctx.drawImage(overlay, 0, 0, canvas.width, canvas.height);
+    showEnding(); // ⬅ 이 부분이 핵심!
+  };
 }
 
-// 🔹 엔딩 화면 표시 후 3초 뒤 index로 복귀
+// 🔹 엔딩 화면 표시 후 3초 뒤 부모에게 메시지 보내기 (중복 제거)
 function showEnding() {
-  endingScreen.style.display = 'flex';
-  console.log("🎬 엔딩 화면 표시됨 (3초 카운트)");
+  endingScreen.style.display = 'flex';
+  console.log("🎬 엔딩 화면 표시됨 (3초 후 복귀)");
 
-  // ✅ 안전한 parent 접근 (CORS 방지)
-  setTimeout(() => {
-    try {
-      if (window.parent && typeof window.parent.returnToWindow1 === "function") {
-        console.log("✅ 부모 함수 실행: returnToWindow1()");
-        window.parent.returnToWindow1();
-      } else {
-        console.warn("⚠️ 부모 접근 불가 → 단독 모드로 리디렉트");
-        window.location.href = "../components/window1.html";
-      }
-    } catch (e) {
-      console.error("❌ parent 접근 에러:", e);
-      // 완전 차단됐을 경우에도 3초 뒤 fallback
-      window.location.href = "../components/window1.html";
-    }
-  }, 3000);
+  // ✅ 카메라 종료 (리소스 정리)
+  if (video.srcObject) {
+    video.srcObject.getTracks().forEach(track => track.stop());
+  }
+
+  // ✅ 부모에게 메시지 전달
+  setTimeout(() => {
+    console.log("📤 부모에게 복귀 메시지 전송: RETURN_TO_WINDOW1");
+    // index.html에 구현된 message 이벤트 리스너가 이 신호를 받습니다.
+    window.parent.postMessage("RETURN_TO_WINDOW1", "*");
+  }, 3000);
 }
+
+</script>
+
 </script>
 
 </body>

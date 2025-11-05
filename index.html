@@ -243,50 +243,20 @@ window.showWindow9 = function () {
 window.returnToWindow1 = function () {
   console.log("🎬 returnToWindow1() 호출됨 (index.html)");
 
-  const w1 = document.getElementById('w1');
-  const w9 = document.getElementById('w9');
-
-  // ✅ 안전검사
-  if (!w1 || !w9) {
-    console.warn("⚠️ w1 또는 w9을 찾을 수 없습니다. 500ms 후 재시도");
-    setTimeout(window.returnToWindow1, 500);
-    return;
-  }
-
-  // ✅ 모든 창을 전부 숨김 (혹시 남아 있을 수 있음)
-  ['w2','w4','w6','w7','w8','w9'].forEach(id => {
+  // ✅ 모든 창 닫기 (혹시라도 남아 있을 경우 대비)
+  ['w1','w2','w4','w6','w7','w8','w9'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = 'none';
   });
 
-  // ✅ window1 표시 및 맨 위로
-  w1.style.display = 'block';
-  w1.style.zIndex = 9999;
-
-  // ✅ 부드러운 전환용 페이드아웃
-  document.body.style.transition = "opacity 0.8s ease";
-  document.body.style.opacity = "0";
+  // ✅ 엔딩이 완전히 끝난 뒤 전체 페이지 새로고침
   setTimeout(() => {
-    document.body.style.opacity = "1";
-
-    // ✅ focus 확실히 잡기
-    setTimeout(() => {
-      if (w1.contentWindow) {
-        w1.contentWindow.focus();
-        console.log("✅ window1 복귀 완료!");
-      } else {
-        console.warn("⚠️ window1 focus 실패, 재시도 중...");
-        setTimeout(window.returnToWindow1, 500);
-      }
-    }, 200);
-  }, 200);
+    console.log("🔁 모든 과정 완료 → 전시 페이지 새로고침 시작");
+    window.location.reload(); // index.html 전체 새로고침
+  }, 4000); // 엔딩 'X is You' 화면이 충분히 보이도록 4초 뒤 새로고침
 };
 
-
-
-    document.addEventListener("DOMContentLoaded", () => {
-      console.log("✅ index DOM 준비 완료");
-    });
+   
   </script>
 </body>
 </html>

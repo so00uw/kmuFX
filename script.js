@@ -10,7 +10,8 @@ function fitStage() {
   const stage = document.getElementById('stage');
 
   // 순서 바꿈: scale 먼저 → translate 나중
-  stage.style.transform = scale(${s}) translate(-50%, -50%);
+  stage.style.transform = `scale(${s}) translate(-50%, -50%)`;
+
 }
 window.addEventListener('load', fitStage);
 window.addEventListener('resize', fitStage);
