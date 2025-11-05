@@ -5,10 +5,12 @@ html,body{ margin:0; height:100%; background:#000; color:#fff; font-family:syste
 /* ── 스테이지: 1920x1080 고정. JS가 화면에 맞게 중앙 스케일 */
 #stage {
   position: absolute;     /* ← fixed → absolute 로 변경 */
+  left: 50%;
+  top: 50%;
   width: 1920px;
   height: 1080px;
   background: #000;
-  transform-origin: center center; /* 변경: 기준점을 가운데로 */
+  transform-origin: top left; /* 변경: 기준점을 가운데로 */
 }
 
 
