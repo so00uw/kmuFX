@@ -1,18 +1,20 @@
 /* ── 1) 스테이지 전체 스케일(모니터 비율 달라도 레이아웃 고정) */
-/* ── 1) 스테이지 전체 스케일(모니터 비율 달라도 레이아웃 고정) */
 const STAGE_W = 1920, STAGE_H = 1080;
 
-function fitStage(){
-  const vw = document.documentElement.clientWidth;
-  const vh = document.documentElement.clientHeight;
+function fitStage() {
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+
   const s = Math.min(vw / STAGE_W, vh / STAGE_H);
   const stage = document.getElementById('stage');
-  // translate는 CSS가 하니까 scale만 적용
-  stage.style.transform = `scale(${s})`;
+
+  // 🔹 translate + scale을 한 번에 적용 (덮어쓰기 문제 해결)
+  stage.style.transform = `translate(-50%, -50%) scale(${s})`;
 }
 
-addEventListener('load', fitStage);
-addEventListener('resize', fitStage);
+window.addEventListener('load', fitStage);
+window.addEventListener('resize', fitStage);
+
 
 
 /* ── 2) 창 드래그(제목바 잡고 이동) */
