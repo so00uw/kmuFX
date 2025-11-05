@@ -10,6 +10,9 @@ function fitStage() {
   const s = Math.min(vw / STAGE_W, vh / STAGE_H);
   const stage = document.getElementById('stage');
 
+  stage.style.left = '50%'; 
+  stage.style.top = '50%';
+
   // 순서 바꿈: scale 먼저 → translate 나중
   stage.style.transform = `translate(-50%, -50%) scale(${s})`; // ✅ 수정된 코드
 }
